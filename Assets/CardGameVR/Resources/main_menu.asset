@@ -1,0 +1,167 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 776389e82c640c44086d3baf10dd1c7b, type: 3}
+  m_Name: main_menu
+  m_EditorClassIdentifier: 
+  languages:
+  - IETF: en-US
+    entries:
+    - key: main_menu.quick
+      value: Quick Game
+    - key: main_menu.settings
+      value: Settings
+    - key: main_menu.quit
+        value: Quit
+    - key: main_menu.collection
+      value: Collection
+    - key: main_menu.custom
+      value: Custom Game
+    - key: main_menu.credits
+        value: Credits
+    - key: main_menu.custom.create
+        value: Create
+    - key: main_menu.custom.join
+        value: Join
+    - key: main_menu.custom.join.title
+        value: Custom Game - Join
+    - key: main_menu.custom.create.title
+        value: Custom Game - Create
+    - key: main_menu.custom.join.code
+        value: Code...
+    - key: main_menu.custom.join.quick
+        value: Quick Game
+    - key: main_menu.custom.join.matchmaking
+        value: Matchmaking
+    - key: main_menu.custom.join_auto
+        value: Join Automatically
+    - key: main_menu.custom.join_code
+        value: Join by Code
+    - key: main_menu.custom.join.list
+        value: Game List
+    - key: main_menu.custom.join.list_update
+        value: "{0}"
+    - key: main_menu.custom.join.list_updating
+        value: "..."
+    - key: main_menu.custom.join.no_lobby
+        value: No lobby found
+    - key: main_menu.custom.create.label_pattern
+        value: "{0}'s lobby"
+    - key: main_menu.custom.create.label_placeholder
+        value: "Lobby name"
+    - key: main_menu.custom.create.is_private
+        value: "Private"
+    - key: main_menu.custom.create.start
+        value: "Start"
+    - key: main_menu.custom.join.list.label
+        value: "{0}"
+    - key: main_menu.custom.join.list.player_count
+        value: "{0}/{1}"
+    - key: main_menu.creating.title
+        value: Creating Game
+    - key: main_menu.creating.preparing
+        value: Preparing Game...
+    - key: main_menu.creating.relay_allocation
+        value: Allocating Relay...
+    - key: main_menu.creating.relay_join_code
+        value: Creating Join Code...
+    - key: main_menu.creating.lobby_creation
+        value: Creating Lobby...
+    - key: main_menu.creating.start_host
+        value: Starting Host...
+    - key: main_menu.joining.title
+        value: Joining Game
+    - key: main_menu.joining.preparing
+        value: Preparing Game...
+    - key: main_menu.joining.join_allocation
+        value: Allocating Connection...
+    - key: main_menu.joining.start_client
+        value: Starting Client...
+    - key: main_menu.lobby.title
+        value: "Game - {0}"
+    - key: card.owner
+        value: "{0}'s card"
+  - IETF: fr-FR
+    entries:
+    - key: main_menu.quick
+      value: Partie rapide
+    - key: main_menu.settings
+        value: Paramètres
+    - key: main_menu.quit
+        value: Quitter
+    - key: main_menu.collection
+        value: Collection
+    - key: main_menu.custom
+        value: Partie personnalisée
+    - key: main_menu.credits
+        value: Crédits
+    - key: main_menu.custom.create
+        value: Créer
+    - key: main_menu.custom.join
+        value: Rejoindre
+    - key: main_menu.custom.join.title
+        value: Partie personnalisée - Rejoindre
+    - key: main_menu.custom.create.title
+        value: Partie personnalisée - Créer
+    - key: main_menu.custom.join.code
+        value: Code...
+    - key: main_menu.custom.join.quick
+        value: Partie rapide
+    - key: main_menu.custom.join.matchmaking
+        value: Matchmaking
+    - key: main_menu.custom.join_auto
+        value: Rejoindre automatiquement
+    - key: main_menu.custom.join_code
+        value: Rejoindre par code
+    - key: main_menu.custom.join.list
+        value: Liste des parties
+    - key: main_menu.custom.join.list_update
+        value: "{0}"
+    - key: main_menu.custom.join.list_updating
+        value: "..."
+    - key: main_menu.custom.join.no_lobby
+        value: Aucune partie trouvée
+    - key: main_menu.custom.create.label_pattern
+        value: "Lobby de {0}"
+    - key: main_menu.custom.create.label_placeholder
+        value: "Nom du lobby"
+    - key: main_menu.custom.create.is_private
+        value: "Privé"
+    - key: main_menu.custom.create.start
+        value: "Lancer"
+    - key: main_menu.custom.join.list.label
+        value: "{0}"
+    - key: main_menu.custom.join.list.player_count
+        value: "{0} / {1}"
+    - key: main_menu.creating.title
+        value: Création de la partie
+    - key: main_menu.creating.preparing
+        value: Préparation de la partie...
+    - key: main_menu.creating.relay_allocation
+        value: Allocation du relais...
+    - key: main_menu.creating.relay_join_code
+        value: Création du code de la partie...
+    - key: main_menu.creating.lobby_creation
+        value: Création du lobby...
+    - key: main_menu.creating.start_host
+        value: Démarrage de l'hôte...
+    - key: main_menu.joining.title
+        value: Connexion à la partie
+    - key: main_menu.joining.preparing
+        value: Préparation de la partie...
+    - key: main_menu.joining.join_allocation
+        value: Allocation de la connexion...
+    - key: main_menu.joining.start_client
+        value: Démarrage de la connexion...
+    - key: main_menu.lobby.title
+        value: "Partie - {0}"
+    - key: card.owner
+        value: "Carte de {0}"
