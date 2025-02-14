@@ -32,7 +32,7 @@ namespace CardGameVR.XR
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         public static void OnSubsystemRegistration()
         {
-            if (!GameManager.startGameFlag) return;
+            if (!GameManager.StartGameFlag) return;
             GameManager.AddOperation(nameof(XRManager));
             Debug.Log("XRManager.OnSubsystemRegistration");
 
@@ -72,7 +72,7 @@ namespace CardGameVR.XR
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         public static void OnAfterSceneLoad()
         {
-            if (!GameManager.startGameFlag) return;
+            if (!GameManager.StartGameFlag) return;
             Debug.Log("XRManager.OnAfterSceneLoad");
             var go = new GameObject($"[{nameof(XRManager)}]");
             go.AddComponent<XRManager>();

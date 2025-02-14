@@ -482,7 +482,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7445060688352604527}
   - component: {fileID: 2066218005184281152}
-  - component: {fileID: 7311694442011803282}
   - component: {fileID: 6586631561525616598}
   m_Layer: 2
   m_Name: DesktopPlayer
@@ -522,23 +521,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 1489005725803630343}
---- !u!114 &7311694442011803282
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8344733874461506275}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0cb9aa70a22847b5925ee5f067c10a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Camera: {fileID: 1489005725803630343}
-  m_OriginBaseGameObject: {fileID: 8344733874461506275}
-  m_CameraFloorOffsetObject: {fileID: 6672471445911498562}
-  m_RequestedTrackingOriginMode: 0
-  m_CameraYOffset: 1.7
 --- !u!143 &6586631561525616598
 CharacterController:
   m_ObjectHideFlags: 0

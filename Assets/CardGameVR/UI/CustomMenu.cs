@@ -32,9 +32,15 @@ namespace CardGameVR.UI
         public Toggle TogglePrivate;
         public string labelPatternKey = "main_menu.custom.create.label_pattern";
 
+        [Header("Modal")] public GameObject modal;
+        public TextLanguage textModalTitle;
+        public TextLanguage textModalMessage;
+
+        [Header("Code Lobby")] public TMPro.TMP_InputField inputCode;
 
         public void Show(bool active, string value)
         {
+            Debug.Log($"CustomMenu.Show: {active} - {value}");
             gameObject.SetActive(active);
             if (!active)
             {
@@ -44,9 +50,26 @@ namespace CardGameVR.UI
 
             SetupCreate();
 
-            if (value == "create")
+            var args = ISubMenu.GetArgList(value).ToList();
+
+            if (args.Contains("m:create"))
                 ShowCreate();
             else ShowJoin();
+
+            if (args.Contains("m:modal"))
+            {
+                var index = args.IndexOf("m:modal");
+                textModalTitle.UpdateText(new[] { args[index + 1] });
+                textModalMessage.UpdateText(new[] { args[index + 2] });
+                modal.SetActive(true);
+                ForceUpdateLayout.UpdateManually(modal);
+            }
+            else modal.SetActive(false);
+        }
+
+        public void OnClickModalOk()
+        {
+            modal.SetActive(false);
         }
 
         public void ShowCreate()
@@ -59,7 +82,7 @@ namespace CardGameVR.UI
         private void SetupCreate()
         {
             inputLabel.text =
-                LanguageManager.Get(labelPatternKey, new object[] { MultiplayerManager.instance.playerName });
+                LanguageManager.Get(labelPatternKey, new object[] { MultiplayerManager.instance.PlayerName });
             TogglePrivate.isOn = false;
         }
 
@@ -136,9 +159,39 @@ namespace CardGameVR.UI
             var isPrivate = TogglePrivate.isOn;
             menu.OnClick("create");
             var lobby = await LobbyManager.instance.CreateLobby(label, isPrivate);
-            if (lobby == null) return;
+            if (lobby == null)
+            {
+                var last = LobbyManager.instance.LastLobbyException;
+                menu.OnClick("custom", ISubMenu.ToArg(
+                    "m:create",
+                    "m:modal", last?.Message, last?.Exception.Message
+                ));
+                return;
+            }
+
             Debug.Log($"Created lobby {lobby}");
-            menu.OnClick("lobby");
+            menu.Close();
+        }
+
+
+        public void OnClickJoinByCode() => OnClickJoinByCodeAsync().Forget();
+
+        public async UniTask OnClickJoinByCodeAsync()
+        {
+            var code = inputCode.text;
+            if (string.IsNullOrWhiteSpace(code)) return;
+            menu.OnClick("join");
+            var lobby = await LobbyManager.instance.GetLobbyById(code);
+            if (lobby == null)
+            {
+                menu.OnClick("custom", ISubMenu.ToArg(
+                    "m:join",
+                    "m:modal", "Failed to join lobby", "Lobby not found"
+                ));
+                return;
+            }
+
+            await JoinLobbyAsync(lobby);
         }
 
         public void JoinLobby(Lobby lobby) => JoinLobbyAsync(lobby).Forget();
@@ -147,9 +200,18 @@ namespace CardGameVR.UI
         {
             menu.OnClick("join");
             var o = await LobbyManager.instance.JoinLobby(lobby);
-            if (o == null) return;
+            if (o == null)
+            {
+                var last = LobbyManager.instance.LastLobbyException;
+                menu.OnClick("custom", ISubMenu.ToArg(
+                    "m:join",
+                    "m:modal", last?.Message, last?.Exception.Message
+                ));
+                return;
+            }
+
             Debug.Log($"Joined lobby {o}");
-            menu.OnClick("lobby");
+            menu.Close();
         }
     }
 }

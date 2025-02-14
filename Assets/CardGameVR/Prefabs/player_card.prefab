@@ -221,6 +221,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clientId: 0
   textPlayerName: {fileID: 4643601108486639462}
+  visualCardPrefab: {fileID: 4043231784300279798, guid: 1daf5e48bcc8a2649b3c8620c357630b, type: 3}
 --- !u!222 &65581266660988309
 CanvasRenderer:
   m_ObjectHideFlags: 0

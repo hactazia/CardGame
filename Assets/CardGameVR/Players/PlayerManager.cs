@@ -8,7 +8,7 @@ namespace CardGameVR.Players
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
         public static void OnBeforeSplashScreen()
         {
-            if (!GameManager.startGameFlag) return;
+            if (!GameManager.StartGameFlag) return;
             Debug.Log("PlayerManager.OnBeforeSplashScreen()");
             GameManager.AddOperation(nameof(PlayerManager));
         }
@@ -16,7 +16,7 @@ namespace CardGameVR.Players
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         public static void OnBeforeSceneLoad()
         {
-            if (!GameManager.startGameFlag) return;
+            if (!GameManager.StartGameFlag) return;
             Debug.Log("PlayerManager.OnBeforeSceneLoad()");
             if (XRManager.IsXRActive())
                 SetXRPlayer();
@@ -25,11 +25,11 @@ namespace CardGameVR.Players
             GameManager.RemoveOperation(nameof(PlayerManager));
         }
 
-        public static Player player { get; private set; }
-        
+        public static Player Player { get; private set; }
+
         private static void OnXRHeadsetChange(bool active)
         {
-            if (player && active == player.TryCast(out VRPlayer _)) return;
+            if (Player && active == Player.TryCast(out XRPlayer _)) return;
             if (active) SetXRPlayer();
             else SetDesktopPlayer();
         }
@@ -39,9 +39,10 @@ namespace CardGameVR.Players
             DestroyPreviousPlayer();
             Debug.Log("Setup XR Player");
             var prefab = Resources.Load<GameObject>("XRPlayer");
-            var player = Object.Instantiate(prefab);
-            Object.DontDestroyOnLoad(player);
-            PlayerManager.player = player.GetComponent<Player>();
+            var o = Object.Instantiate(prefab);
+            o.name = $"[{nameof(XRPlayer)}]";
+            Object.DontDestroyOnLoad(o.gameObject);
+            Player = o.GetComponent<Player>();
         }
 
         private static void SetDesktopPlayer()
@@ -49,17 +50,18 @@ namespace CardGameVR.Players
             DestroyPreviousPlayer();
             Debug.Log("Setup Desktop Player");
             var prefab = Resources.Load<GameObject>("DesktopPlayer");
-            var player = Object.Instantiate(prefab);
-            Object.DontDestroyOnLoad(player);
-            PlayerManager.player = player.GetComponent<Player>();
+            var o = Object.Instantiate(prefab);
+            o.name = $"[{nameof(DesktopPlayer)}]";
+            Object.DontDestroyOnLoad(o.gameObject);
+            Player = o.GetComponent<Player>();
         }
 
         private static void DestroyPreviousPlayer()
         {
-            if (!player) return;
+            if (!Player) return;
             Debug.Log("Destroy Previous Player");
-            Object.Destroy(player.gameObject);
-            player = null;
+            Object.Destroy(Player.gameObject);
+            Player = null;
         }
     }
 }

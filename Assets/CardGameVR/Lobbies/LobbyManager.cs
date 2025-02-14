@@ -41,7 +41,7 @@ namespace CardGameVR.Lobbies
 
         public static readonly LobbyExceptionEvent OnCreateLobbyFailed = new();
         public static readonly LobbyExceptionEvent OnRefusedToJoinLobby = new();
-        public static readonly LobbyExceptionEvent OnJoinLobbyByIdFailed = new();
+        public static readonly LobbyExceptionEvent OnJoinLobbyFailed = new();
         public static readonly RefreshLobbiesEvent OnRefreshLobbies = new();
         public static readonly CreatingLobbyEvent OnCreatingLobby = new();
         public static readonly JoiningLobbyEvent OnJoiningLobby = new();
@@ -144,7 +144,7 @@ namespace CardGameVR.Lobbies
             try
             {
                 return await RelayService.Instance
-                    .CreateAllocationAsync(MultiplayerManager.instance.maxPlayerCount - 1);
+                    .CreateAllocationAsync(MultiplayerManager.instance.MaxPlayerCount - 1);
             }
             catch (RelayServiceException e)
             {
@@ -166,6 +166,7 @@ namespace CardGameVR.Lobbies
             }
         }
 
+        public LobbyExceptionArgs LastLobbyException { get; set; }
 
         public async UniTask<Lobby> CreateLobby(string lobbyName, bool isPrivate)
         {
@@ -178,7 +179,7 @@ namespace CardGameVR.Lobbies
                     { Manager = this, Status = CreatingLobbyStatus.RelayJoinCode });
                 var relayJoinCode = await GetRelayJoinCode(allocation);
                 var protocolVersion = NetworkManager.Singleton.NetworkConfig.ProtocolVersion;
-                var maxPlayers = MultiplayerManager.instance.maxPlayerCount;
+                var maxPlayers = MultiplayerManager.instance.MaxPlayerCount;
                 var options = new CreateLobbyOptions()
                 {
                     IsPrivate = isPrivate,
@@ -212,12 +213,13 @@ namespace CardGameVR.Lobbies
             catch (LobbyServiceException e)
             {
                 Debug.LogException(e);
-                OnCreateLobbyFailed.Invoke(new LobbyExceptionArgs
+                LastLobbyException = new LobbyExceptionArgs
                 {
                     Manager = this,
                     Exception = e,
                     Message = "Fail to create lobby"
-                });
+                };
+                OnCreateLobbyFailed.Invoke(LastLobbyException);
             }
 
             return null;
@@ -283,7 +285,7 @@ namespace CardGameVR.Lobbies
             catch (LobbyServiceException e)
             {
                 Debug.LogException(e);
-                OnJoinLobbyByIdFailed.Invoke(new LobbyExceptionArgs
+                OnJoinLobbyFailed.Invoke(new LobbyExceptionArgs
                 {
                     Manager = this,
                     Exception = e
@@ -299,6 +301,19 @@ namespace CardGameVR.Lobbies
             await LobbyService.Instance.RemovePlayerAsync(_currentLobby.Id,
                 AuthenticationService.Instance.PlayerId);
             _currentLobby = null;
+        }
+
+        public async UniTask<Lobby> GetLobbyById(string lobbyId)
+        {
+            try
+            {
+                return await LobbyService.Instance.GetLobbyAsync(lobbyId);
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.LogException(e);
+                return null;
+            }
         }
     }
 }

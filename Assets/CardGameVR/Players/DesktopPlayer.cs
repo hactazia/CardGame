@@ -6,7 +6,12 @@ namespace CardGameVR.Players
     {
         public Camera playerCamera;
 
-        public override void Recenter() { }
+        public override void Recenter()
+        {
+            Debug.Log("Desktop Re-centering");
+            if(!PlayerAnchor.Instance) return;
+            Teleport(PlayerAnchor.Instance.transform);
+        }
         
         public override Vector3 GetPosition()
             => transform.position;

@@ -2,7 +2,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace api.nox.game
+namespace CardGameVR.UI
 {
     public interface UpdateLayout
     {
@@ -17,22 +17,26 @@ namespace api.nox.game
 
         public static void UpdateManually(RectTransform rect)
         {
-            if (rect == null || !rect.gameObject.activeInHierarchy) return;
+            if (!rect || !rect.gameObject.activeInHierarchy) return;
+
+            var layoutElement = rect.GetComponent<LayoutElement>();
+            if (layoutElement && layoutElement.ignoreLayout) return;
 
             foreach (Transform child in rect)
                 if (child.TryGetComponent<RectTransform>(out var rec))
                     UpdateManually(rec);
+            
             var rectTransform = rect.GetComponent<RectTransform>();
             var contentSizeFitter = rect.GetComponent<ContentSizeFitter>();
             var layoutGroup = rect.GetComponent<LayoutGroup>();
 
-            if (contentSizeFitter != null)
+            if (contentSizeFitter)
             {
                 contentSizeFitter.SetLayoutHorizontal();
                 contentSizeFitter.SetLayoutVertical();
             }
 
-            if (layoutGroup != null)
+            if (layoutGroup)
             {
                 layoutGroup.CalculateLayoutInputHorizontal();
                 layoutGroup.CalculateLayoutInputVertical();
@@ -44,16 +48,6 @@ namespace api.nox.game
                 child.UpdateLayout();
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
-
-            if (rect.TryGetComponent<MenuGridder>(out var menugridder))
-            {
-                rect.gameObject.SetActive(false);
-                UniTask.DelayFrame(1).ContinueWith(() =>
-                {
-                    rect.gameObject.SetActive(true);
-                    menugridder.UpdateContent();
-                }).Forget();
-            }
         }
     }
 }

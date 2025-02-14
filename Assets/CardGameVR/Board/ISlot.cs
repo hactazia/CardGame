@@ -16,7 +16,14 @@ namespace CardGameVR.Board
             c = GetCard();
             return HasCard();
         }
-        
+
         public Transform GetTransform();
+
+        public GameObject Destroy()
+        {
+            if (HasCard())
+                GetCard().Destroy();
+            return GetTransform().gameObject;
+        }
     }
 }

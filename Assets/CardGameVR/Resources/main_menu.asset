@@ -65,6 +65,10 @@ MonoBehaviour:
         value: "{0}"
     - key: main_menu.custom.join.list.player_count
         value: "{0}/{1}"
+    - key: main_menu.custom.modal.title
+        value: "{0}"
+    - key: main_menu.custom.modal.message
+        value: "{0}"
     - key: main_menu.creating.title
         value: Creating Game
     - key: main_menu.creating.preparing
@@ -89,6 +93,12 @@ MonoBehaviour:
         value: "Game - {0}"
     - key: card.owner
         value: "{0}'s card"
+    - key: button.ok
+        value: OK
+    - key: button.cancel
+        value: Cancel
+    - key: button.confirm
+        value: Confirm
   - IETF: fr-FR
     entries:
     - key: main_menu.quick
@@ -165,3 +175,13 @@ MonoBehaviour:
         value: "Partie - {0}"
     - key: card.owner
         value: "Carte de {0}"
+    - key: button.ok
+        value: OK
+    - key: button.cancel
+        value: Annuler
+    - key: button.confirm
+        value: Confirmer
+    - key: main_menu.custom.modal.title
+        value: "{0}"
+    - key: main_menu.custom.modal.message
+        value: "{0}"

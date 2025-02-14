@@ -4,10 +4,9 @@ using UnityEngine.InputSystem;
 
 namespace CardGameVR.Players
 {
-    public class VRPlayer : Player
+    public class XRPlayer : Player
     {
         public Camera playerCamera;
-        public float defaultHeight = 1.7f;
         public InputActionReference recenterAction;
         public Transform physicalMenu;
 
@@ -37,14 +36,17 @@ namespace CardGameVR.Players
             => playerCamera.transform.rotation;
 
         protected override void SetPosition(Vector3 position)
-            => transform.position = position;
+        {
+            var xrOrigin = GetComponent<XROrigin>();
+            xrOrigin.MoveCameraToWorldLocation(position + transform.up * xrOrigin.CameraInOriginSpaceHeight);
+        }
 
         protected override void SetRotation(Quaternion rotation)
         {
-            transform.rotation = new Quaternion(
-                0, rotation.y,
-                0, rotation.w
-            );
+            var xrOrigin = GetComponent<XROrigin>();
+            var up = rotation * Vector3.up;
+            var forward = rotation * Vector3.forward;
+            xrOrigin.MatchOriginUpCameraForward(up, forward);
         }
 
         public override void Recenter()
@@ -52,10 +54,7 @@ namespace CardGameVR.Players
             Debug.Log("XR Re-centering");
             if(!PlayerAnchor.Instance) return;
             var anchor = PlayerAnchor.Instance.transform;
-            var xrOrigin = GetComponent<XROrigin>();
-            xrOrigin.MoveCameraToWorldLocation(anchor.position);
-            xrOrigin.MatchOriginUpCameraForward(anchor.up, anchor.forward);
-
+            Teleport(anchor);
             if (!physicalMenu) return;
             physicalMenu.position = anchor.position;
             physicalMenu.rotation = anchor.rotation;
@@ -73,13 +72,13 @@ namespace CardGameVR.Players
     }
 
 #if UNITY_EDITOR
-    [UnityEditor.CustomEditor(typeof(VRPlayer))]
+    [UnityEditor.CustomEditor(typeof(XRPlayer))]
     public class VRPlayerEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            var player = (VRPlayer)target;
+            var player = (XRPlayer)target;
             if (GUILayout.Button("Recenter"))
                 player.Recenter();
         }

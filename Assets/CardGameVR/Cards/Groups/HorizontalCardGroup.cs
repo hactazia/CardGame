@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CardGameVR.Board;
+using CardGameVR.Cards.Visual;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ namespace CardGameVR.Cards.Groups
         public GameObject slotPrefab;
         public int maxCards = 5;
         public readonly List<ICard> Cards = new();
+        public VisualCardHandler visualCardHandler;
 
         public void Clear()
         {
@@ -25,6 +27,7 @@ namespace CardGameVR.Cards.Groups
             if (Cards.Count >= maxCards) return;
             var slot = Instantiate(slotPrefab, transform).GetComponent<ISlot>();
             slot.SetCard(card);
+            card.SpawnVisualCard(visualCardHandler ?? VisualCardHandler.Instance);
             Cards.Add(card);
         }
 
@@ -37,7 +40,7 @@ namespace CardGameVR.Cards.Groups
                 if (s.GetCard() == card)
                 {
                     s.ClearCard();
-                    Destroy(s.GetTransform().gameObject);
+                    Destroy(s.Destroy());
                     break;
                 }
         }

@@ -11,7 +11,9 @@ namespace CardGameVR.UI
         public MenuAction[] actions;
 
         // On Click events for the main menu buttons
-        public void OnClick(string n)
+        public void OnClick(string n) => OnClick(n, null);
+
+        public void OnClick(string n, string value)
         {
             var action = actions.FirstOrDefault(a => a.name == n);
             if (action == null) return;
@@ -21,7 +23,7 @@ namespace CardGameVR.UI
                     OpenURL(action.value);
                     break;
                 case MenuAction.ActionType.OpenMenu:
-                    OpenMenu(action.name);
+                    OpenMenu(action.name, value ?? action.value);
                     break;
             }
         }
@@ -39,13 +41,13 @@ namespace CardGameVR.UI
             _pack = Resources.Load<LanguagePack>("main_menu");
             LanguageManager.AddPack(_pack);
         }
-        
+
         public void OnApplicationQuit()
         {
             if (!_pack) return;
             LanguageManager.RemovePack(_pack);
         }
-        
+
         public void Start()
         {
             OpenMenu(defaultAction);
@@ -56,11 +58,18 @@ namespace CardGameVR.UI
             Application.OpenURL(url);
         }
 
-        public void OpenMenu(string selectAction)
+        public void OpenMenu(string selectAction, string value = null)
         {
+            Debug.Log("OpenMenu: " + selectAction);
             foreach (var action in actions)
                 if (action.type == MenuAction.ActionType.OpenMenu)
-                    action.targetSubMenu.Show(action.name == selectAction, action.value);
+                    action.targetSubMenu.Show(action.name == selectAction, value ?? action.value);
+        }
+
+        public void Close()
+        {
+            Debug.Log("Close Menu");
+            gameObject.SetActive(false);
         }
     }
 

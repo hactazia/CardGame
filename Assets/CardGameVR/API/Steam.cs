@@ -12,7 +12,7 @@ namespace CardGameVR.API
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Initialize()
         {
-            if (!GameManager.startGameFlag) return;
+            if (!GameManager.StartGameFlag) return;
             if (!isSteamRunning)
             {
                 Debug.LogError("Steam is not running.");

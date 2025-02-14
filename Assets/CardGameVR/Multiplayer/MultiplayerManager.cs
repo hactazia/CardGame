@@ -20,11 +20,12 @@ namespace CardGameVR.Multiplayer
         public static readonly ClientJoinedEvent OnClientJoined = new();
         public static readonly ClientLeftEvent OnClientLeft = new();
 
-        public int minPlayerCount => config.GetMinPlayerCount();
-        public int maxPlayerCount => config.GetMaxPlayerCount();
-        public Team[] playTeams => config.GetPlayTeams();
-        public string playerName => BaseAPI.GetDisplayName();
-        public string playerID => BaseAPI.GetId();
+        public int MinPlayerCount => config.GetMinPlayerCount();
+        public int MaxPlayerCount => config.GetMaxPlayerCount();
+        public string PlayerName => BaseAPI.GetDisplayName();
+        public string PlayerID => BaseAPI.GetId();
+        
+        public bool IsPlayerIsLocal(ulong clientId) => clientId == NetworkManager.Singleton.LocalClientId;
 
         public NetworkList<PlayerData> PlayerData;
         public static readonly PlayerDataChangedEvent OnPlayerDataChanged = new();
@@ -67,13 +68,31 @@ namespace CardGameVR.Multiplayer
         private void NetworkManager_ConnectionApprovalCallback(NetworkManager.ConnectionApprovalRequest request,
             NetworkManager.ConnectionApprovalResponse response)
         {
-            response.Approved = NetworkManager.Singleton.ConnectedClientsList.Count < maxPlayerCount;
+            response.Approved = NetworkManager.Singleton.ConnectedClientsList.Count < MaxPlayerCount;
         }
 
         private void NetworkManager_Server_OnClientConnectedCallback(ulong clientId)
         {
-            var team = playTeams[PlayerData.Count];
-            PlayerData.Add(new PlayerData { ClientId = clientId, Team = team });
+            byte freePlacement = 0;
+            while (freePlacement < PlayerData.Count)
+            {
+                var found = false;
+                foreach (var data in PlayerData)
+                    if (data.Placement == freePlacement)
+                    {
+                        found = true;
+                        break;
+                    }
+
+                if (!found) break;
+                freePlacement++;
+            }
+
+            PlayerData.Add(new PlayerData
+            {
+                ClientId = clientId,
+                Placement = freePlacement
+            });
             NotifyPlayerJoinedClientRpc(clientId);
         }
 
@@ -95,8 +114,8 @@ namespace CardGameVR.Multiplayer
 
         private void NetworkManager_Client_OnClientConnectedCallback(ulong obj)
         {
-            SetPlayerIdServerRpc(new FixedString128Bytes(playerID));
-            SetPlayerNameServerRpc(new FixedString128Bytes(playerName));
+            SetPlayerIdServerRpc(new FixedString128Bytes(PlayerID));
+            SetPlayerNameServerRpc(new FixedString128Bytes(PlayerName));
         }
 
 
@@ -151,7 +170,7 @@ namespace CardGameVR.Multiplayer
 
         public bool TryGetPlayerData(ulong clientId, out PlayerData data)
         {
-            foreach (var playerData in PlayerData)
+            foreach (var playerData in instance.PlayerData)
                 if (playerData.ClientId == clientId)
                 {
                     data = playerData;
