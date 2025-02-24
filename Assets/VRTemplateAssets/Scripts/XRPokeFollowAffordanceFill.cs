@@ -157,7 +157,7 @@ namespace Unity.VRTemplate
             if (m_PokeDataProvider == null)
             {
                 enabled = false;
-                Debug.LogWarning($"Missing {nameof(IPokeStateDataProvider)} component in parent GameObject of {this}. Disabling component.", this);
+                // Debug.LogWarning($"Missing {nameof(IPokeStateDataProvider)} component in parent GameObject of {this}. Disabling component.", this);
             }
         }
 

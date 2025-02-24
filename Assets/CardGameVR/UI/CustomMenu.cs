@@ -38,7 +38,7 @@ namespace CardGameVR.UI
 
         [Header("Code Lobby")] public TMPro.TMP_InputField inputCode;
 
-        public void Show(bool active, string value)
+        public virtual void Show(bool active, string value)
         {
             Debug.Log($"CustomMenu.Show: {active} - {value}");
             gameObject.SetActive(active);
@@ -72,27 +72,27 @@ namespace CardGameVR.UI
             modal.SetActive(false);
         }
 
-        public void ShowCreate()
+        public virtual void ShowCreate()
         {
             CloseJoin();
             create.SetActive(true);
             join.SetActive(false);
         }
 
-        private void SetupCreate()
+        protected void SetupCreate()
         {
             inputLabel.text =
-                LanguageManager.Get(labelPatternKey, new object[] { MultiplayerManager.instance.PlayerName });
+                LanguageManager.Get(labelPatternKey, new object[] { BaseAPI.GetDisplayName() });
             TogglePrivate.isOn = false;
         }
 
-        private void CloseJoin()
+        protected virtual void CloseJoin()
         {
             LobbyManager.instance.autoRefresh = false;
             LobbyManager.OnRefreshLobbies.RemoveListener(OnRefreshLobbies);
         }
 
-        public void ShowJoin()
+        public virtual void ShowJoin()
         {
             LobbyManager.instance.autoRefresh = true;
             LobbyManager.instance.LastRefresh = DateTime.MinValue;
@@ -168,7 +168,9 @@ namespace CardGameVR.UI
                 ));
                 return;
             }
-
+            
+            menu.OnClick("pause");
+            menu.isToggleable = true;
             Debug.Log($"Created lobby {lobby}");
             menu.Close();
         }
@@ -185,31 +187,35 @@ namespace CardGameVR.UI
             if (lobby == null)
             {
                 menu.OnClick("custom", ISubMenu.ToArg(
+                    "m:join-code",
                     "m:join",
                     "m:modal", "Failed to join lobby", "Lobby not found"
                 ));
                 return;
             }
 
-            await JoinLobbyAsync(lobby);
+            await JoinLobbyAsync(lobby, true);
         }
 
         public void JoinLobby(Lobby lobby) => JoinLobbyAsync(lobby).Forget();
 
-        private async UniTask JoinLobbyAsync(Lobby lobby)
+        private async UniTask JoinLobbyAsync(Lobby lobby, bool code = false)
         {
-            menu.OnClick("join");
+            if (!code) menu.OnClick("join");
             var o = await LobbyManager.instance.JoinLobby(lobby);
             if (o == null)
             {
                 var last = LobbyManager.instance.LastLobbyException;
                 menu.OnClick("custom", ISubMenu.ToArg(
+                    code ? "m:join-code" : "m:join",
                     "m:join",
                     "m:modal", last?.Message, last?.Exception.Message
                 ));
                 return;
             }
 
+            menu.OnClick("pause");
+            menu.isToggleable = true;
             Debug.Log($"Joined lobby {o}");
             menu.Close();
         }

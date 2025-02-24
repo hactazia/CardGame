@@ -1,16 +1,24 @@
-using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
+using UnityEngine;
 
-[ExecuteInEditMode]
-public class DisableBeforePlay : MonoBehaviour
+namespace CardGameVR
 {
-    private void OnEnable()
+#if UNITY_EDITOR
+    [ExecuteInEditMode]
+#endif
+    public class DisableBeforePlay : MonoBehaviour
     {
-        // Vérifie si l'éditeur est en mode édition (pas en Play Mode)
-        if (!EditorApplication.isPlayingOrWillChangePlaymode)
+#if UNITY_EDITOR
+        private void OnEnable()
         {
-            gameObject.SetActive(false);
-            Debug.Log($"{gameObject.name} désactivé avant le Play Mode.");
+            if (!EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                gameObject.SetActive(false);
+                Debug.Log($"{gameObject.name} désactivé avant le Play Mode.");
+            }
         }
+#endif
     }
 }

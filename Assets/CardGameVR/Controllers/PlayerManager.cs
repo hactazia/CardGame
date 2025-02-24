@@ -3,16 +3,15 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace CardGameVR.Players
+namespace CardGameVR.Controllers
 {
-    public static class PlayerManager
+    public static class ControllerManager
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
         public static void OnBeforeSplashScreen()
         {
             if (!GameManager.StartGameFlag) return;
-            Debug.Log("PlayerManager.OnBeforeSplashScreen()");
-            GameManager.AddOperation(nameof(PlayerManager));
+            GameManager.AddOperation(nameof(ControllerManager));
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -21,52 +20,48 @@ namespace CardGameVR.Players
         private static async UniTask OnBeforeSceneLoadAsync()
         {
             if (!GameManager.StartGameFlag) return;
-            Debug.Log("PlayerManager.OnBeforeSceneLoad()");
             if (XRManager.IsXRActive())
                 await SetXRPlayer();
-            else await SetDesktopPlayer();
-            Player.menu.Close();
+            else await SetDesktopController();
+            Controller.menu.Close();
             XRManager.OnXRHeadsetChange.AddListener(OnXRHeadsetChange);
-            GameManager.RemoveOperation(nameof(PlayerManager));
+            GameManager.RemoveOperation(nameof(ControllerManager));
         }
 
-        public static Player Player { get; private set; }
+        public static Controller Controller { get; private set; }
 
         private static void OnXRHeadsetChange(bool active)
         {
-            if (Player && active == Player.TryCast(out XRPlayer _)) return;
+            if (Controller && active == Controller.TryCast(out XRController _)) return;
             if (active) SetXRPlayer().Forget();
-            else SetDesktopPlayer().Forget();
+            else SetDesktopController().Forget();
         }
 
         private static async UniTask SetXRPlayer()
         {
-            DestroyPreviousPlayer();
-            Debug.Log("Setup XR Player");
+            DestroyPreviousController();
             var prefab = await Addressables.LoadAssetAsync<GameObject>("XRPlayer").ToUniTask();
             var o = Object.Instantiate(prefab);
-            o.name = $"[{nameof(XRPlayer)}]";
+            o.name = $"[{nameof(XRController)}]";
             Object.DontDestroyOnLoad(o.gameObject);
-            Player = o.GetComponent<Player>();
+            Controller = o.GetComponent<Controller>();
         }
 
-        private static async UniTask SetDesktopPlayer()
+        private static async UniTask SetDesktopController()
         {
-            DestroyPreviousPlayer();
-            Debug.Log("Setup Desktop Player");
+            DestroyPreviousController();
             var prefab = await Addressables.LoadAssetAsync<GameObject>("DesktopPlayer").ToUniTask();
             var o = Object.Instantiate(prefab);
-            o.name = $"[{nameof(DesktopPlayer)}]";
+            o.name = $"[{nameof(DesktopController)}]";
             Object.DontDestroyOnLoad(o.gameObject);
-            Player = o.GetComponent<Player>();
+            Controller = o.GetComponent<Controller>();
         }
 
-        private static void DestroyPreviousPlayer()
+        private static void DestroyPreviousController()
         {
-            if (!Player) return;
-            Debug.Log("Destroy Previous Player");
-            Object.Destroy(Player.gameObject);
-            Player = null;
+            if (!Controller) return;
+            Object.Destroy(Controller.gameObject);
+            Controller = null;
         }
     }
 }

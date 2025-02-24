@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-namespace CardGameVR
+namespace CardGameVR.Players
 {
     public class PlayerAnchor : MonoBehaviour
     {
@@ -8,19 +9,29 @@ namespace CardGameVR
 
         public bool isDefault;
 
+        public bool IsDefault
+        {
+            get => isDefault;
+            set
+            {
+                isDefault = value;
+                if (isDefault)
+                    Instance = this;
+            }
+        }
+
         public void Awake()
         {
             if (!isDefault) return;
             Instance = this;
         }
 
-
-        public Vector3 GetPosition()
-            => transform.position;
-
-        public Quaternion GetRotation()
-            => transform.rotation;
-
+        private void OnDestroy()
+        {
+            if (Instance == this)
+                Instance = null;
+        }
+        
 #if UNITY_EDITOR
         public void OnDrawGizmos()
         {

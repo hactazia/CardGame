@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using CardGameVR.Players;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace CardGameVR.Players
+namespace CardGameVR.Controllers
 {
-    public class DesktopPlayer : Player
+    public class DesktopController : Controller
     {
         public Camera playerCamera;
 

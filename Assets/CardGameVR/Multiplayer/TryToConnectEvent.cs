@@ -8,6 +8,5 @@ namespace CardGameVR.Multiplayer
 
     public class TryToConnectArgs
     {
-        public MultiplayerManager Manager;
     }
 }

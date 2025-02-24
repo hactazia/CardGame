@@ -9,6 +9,7 @@ namespace CardGameVR.UI
     {
         public string defaultAction = "main";
         public MenuAction[] actions;
+        public bool isToggleable;
 
         // On Click events for the main menu buttons
         public void OnClick(string n) => OnClick(n, null);
@@ -66,10 +67,34 @@ namespace CardGameVR.UI
                     action.targetSubMenu.Show(action.name == selectAction, value ?? action.value);
         }
 
-        public void Close()
+        public virtual void Close()
         {
             Debug.Log("Close Menu");
             gameObject.SetActive(false);
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+
+        public virtual void Open()
+        {
+            Debug.Log("Open Menu");
+            gameObject.SetActive(true);
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
+        public void Toggle()
+        {
+            if (!isToggleable)
+            {
+                Debug.LogWarning("Menu is not toggleable");
+                return;
+            }
+
+            Debug.Log("Toggling menu");
+            if (gameObject.activeSelf)
+                Close();
+            else Open();
         }
     }
 

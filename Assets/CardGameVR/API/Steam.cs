@@ -5,15 +5,27 @@ namespace CardGameVR.API
 {
     public static class Steam
     {
-        private static bool isSteamRunning => SteamAPI.IsSteamRunning();
-        private static bool isSteamUserLoggedOn => isSteamRunning && SteamUser.BLoggedOn();
-        public static bool CanUse() => isSteamUserLoggedOn;
+        private static bool IsSteamRunning() => SteamAPI.IsSteamRunning();
+
+        private static bool IsLoggedOn()
+        {
+            try
+            {
+                return SteamUser.BLoggedOn();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool CanUse() => IsSteamRunning() && IsLoggedOn();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Initialize()
         {
             if (!GameManager.StartGameFlag) return;
-            if (!isSteamRunning)
+            if (!IsSteamRunning())
             {
                 Debug.LogError("Steam is not running.");
                 return;
@@ -25,7 +37,7 @@ namespace CardGameVR.API
 
         public static bool TryGetDisplayName(out string displayName)
         {
-            if (!isSteamUserLoggedOn)
+            if (!CanUse())
             {
                 displayName = null;
                 return false;
@@ -37,7 +49,7 @@ namespace CardGameVR.API
 
         public static bool TryGetId(out string id)
         {
-            if (!isSteamUserLoggedOn)
+            if (!CanUse())
             {
                 id = null;
                 return false;

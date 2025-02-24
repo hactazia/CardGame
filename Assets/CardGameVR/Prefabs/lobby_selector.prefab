@@ -93,7 +93,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
+  m_fontSize: 18
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -254,7 +254,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 236708459658806208, guid: c2be08054450ce84db8d82126c14e9fb, type: 3}
       propertyPath: m_fontSize
-      value: 24
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 236708459658806208, guid: c2be08054450ce84db8d82126c14e9fb, type: 3}
       propertyPath: m_fontColor.b
@@ -403,6 +403,34 @@ PrefabInstance:
     - target: {fileID: 4951341758905639359, guid: c2be08054450ce84db8d82126c14e9fb, type: 3}
       propertyPath: m_Colors.m_HighlightedColor.r
       value: 0.33
+      objectReference: {fileID: 0}
+    - target: {fileID: 4951341758905639359, guid: c2be08054450ce84db8d82126c14e9fb, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4951341758905639359, guid: c2be08054450ce84db8d82126c14e9fb, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4951341758905639359, guid: c2be08054450ce84db8d82126c14e9fb, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2136277218854145975}
+    - target: {fileID: 4951341758905639359, guid: c2be08054450ce84db8d82126c14e9fb, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4951341758905639359, guid: c2be08054450ce84db8d82126c14e9fb, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Join
+      objectReference: {fileID: 0}
+    - target: {fileID: 4951341758905639359, guid: c2be08054450ce84db8d82126c14e9fb, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: CardGameVR.UI.CustomLobbySelector, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 4951341758905639359, guid: c2be08054450ce84db8d82126c14e9fb, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 6335245097371216852, guid: c2be08054450ce84db8d82126c14e9fb, type: 3}
       propertyPath: m_Color.a

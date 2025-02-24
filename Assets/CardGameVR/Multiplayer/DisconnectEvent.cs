@@ -8,7 +8,6 @@ namespace CardGameVR.Multiplayer
     
     public class DisconnectArgs
     {
-        public MultiplayerManager Manager;
         public string Reason;
     }
 }

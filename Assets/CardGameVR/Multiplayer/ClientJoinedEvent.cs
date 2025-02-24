@@ -8,7 +8,6 @@ namespace CardGameVR.Multiplayer
     
     public class ClientJoinedArgs
     {
-        public MultiplayerManager Manager;
         public ulong ClientId;
     }
 }

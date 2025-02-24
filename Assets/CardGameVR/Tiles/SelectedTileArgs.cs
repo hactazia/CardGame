@@ -1,5 +1,5 @@
 ﻿using System;
-using CardGameVR.Players;
+using CardGameVR.Controllers;
 
 namespace CardGameVR.Tiles
 {

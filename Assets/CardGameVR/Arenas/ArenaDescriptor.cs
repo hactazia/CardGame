@@ -1,4 +1,6 @@
 using System;
+using CardGameVR.Controllers;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -13,11 +15,34 @@ namespace CardGameVR.Arenas
     {
         public static ArenaDescriptor Instance;
 
-        public ArenaPlacement[] placements = Array.Empty<ArenaPlacement>();
+        [SerializeField] public ArenaPlacement[] placements = Array.Empty<ArenaPlacement>();
+        public static int MaxPlayerCount => Instance.placements.Length;
 
-        public void Awake()
+        [SerializeField] public NetworkObject playerPrefab;
+
+        internal static int GetPlayerIndex(ulong clientId)
         {
-            Instance = this;
+            for (var i = 0; i < Instance.placements.Length; i++)
+                if (Instance.placements[i].clientId == clientId)
+                    return i;
+            return -1;
+        }
+
+        public void Awake() => Instance = this;
+
+        public void Start()
+        {
+            if (playerPrefab?.gameObject && NetworkManager.Singleton)
+                NetworkManager.Singleton.AddNetworkPrefab(playerPrefab.gameObject);
+        }
+
+        public void OnDestroy()
+        {
+            if (Instance == this)
+                Instance = null;
+
+            if (playerPrefab?.gameObject && NetworkManager.Singleton)
+                NetworkManager.Singleton.RemoveNetworkPrefab(playerPrefab.gameObject);
         }
     }
 }

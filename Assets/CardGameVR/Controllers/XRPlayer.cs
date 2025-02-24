@@ -1,12 +1,13 @@
-﻿using Unity.XR.CoreUtils;
+﻿using CardGameVR.Players;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.XR.Interaction.Toolkit.Inputs;
 
-namespace CardGameVR.Players
+namespace CardGameVR.Controllers
 {
-    public class XRPlayer : Player
+    public class XRController : Controller
     {
         public XROrigin xrOrigin;
         public XRInputModalityManager inputModality;
@@ -107,13 +108,13 @@ namespace CardGameVR.Players
     }
 
 #if UNITY_EDITOR
-    [UnityEditor.CustomEditor(typeof(XRPlayer))]
+    [UnityEditor.CustomEditor(typeof(XRController))]
     public class VRPlayerEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            var player = (XRPlayer)target;
+            var player = (XRController)target;
             if (GUILayout.Button("Recenter"))
                 player.Recenter();
         }

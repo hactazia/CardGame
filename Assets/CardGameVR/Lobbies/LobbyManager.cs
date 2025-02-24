@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CardGameVR.Arenas;
 using CardGameVR.Multiplayer;
 using Cysharp.Threading.Tasks;
 using Unity.Netcode;
@@ -97,7 +98,6 @@ namespace CardGameVR.Lobbies
 
         private async UniTask LobbyHeartBeat()
         {
-            Debug.Log("Sending heartbeat");
             _lastHeartbeat = DateTime.MaxValue;
             try
             {
@@ -143,8 +143,7 @@ namespace CardGameVR.Lobbies
         {
             try
             {
-                return await RelayService.Instance
-                    .CreateAllocationAsync(MultiplayerManager.instance.MaxPlayerCount - 1);
+                return await RelayService.Instance.CreateAllocationAsync(ArenaDescriptor.MaxPlayerCount - 1);
             }
             catch (RelayServiceException e)
             {
@@ -179,7 +178,7 @@ namespace CardGameVR.Lobbies
                     { Manager = this, Status = CreatingLobbyStatus.RelayJoinCode });
                 var relayJoinCode = await GetRelayJoinCode(allocation);
                 var protocolVersion = NetworkManager.Singleton.NetworkConfig.ProtocolVersion;
-                var maxPlayers = MultiplayerManager.instance.MaxPlayerCount;
+                var maxPlayers = ArenaDescriptor.MaxPlayerCount;
                 var options = new CreateLobbyOptions()
                 {
                     IsPrivate = isPrivate,
@@ -207,7 +206,7 @@ namespace CardGameVR.Lobbies
                 _lastHeartbeat = DateTime.Now;
                 OnCreatingLobby.Invoke(new CreatingLobbyArgs
                     { Manager = this, Status = CreatingLobbyStatus.StartHost });
-                MultiplayerManager.instance.StartHost();
+                MultiplayerManager.StartHost();
                 return _currentLobby;
             }
             catch (LobbyServiceException e)
@@ -259,41 +258,73 @@ namespace CardGameVR.Lobbies
         {
             try
             {
-                _currentLobby = lobby;
-                if (!IsNetworkCompatible(_currentLobby))
-                {
-                    OnRefusedToJoinLobby.Invoke(new LobbyExceptionArgs
-                    {
-                        Manager = this,
-                        Message = "Incompatible network version"
-                    });
-                    await LeaveLobby();
-                    return null;
-                }
-
-                var relayJoinCode = _currentLobby.Data[KeyRelayJoinCode].Value;
                 OnJoiningLobby.Invoke(new JoiningLobbyArgs
                     { Manager = this, Status = JoiningLobbyStatus.JoinAllocation });
-                var joinAllocation = await RelayService.Instance.JoinAllocationAsync(relayJoinCode);
+
+                // Join the lobby using LobbyService
+                _currentLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobby.Id);
+
+                // Get Relay Join Code from lobby data
+                if (!_currentLobby.Data.TryGetValue(KeyRelayJoinCode, out var relayData))
+                {
+                    throw new Exception("Relay join code not found in lobby data.");
+                }
+
+                var relayJoinCode = relayData.Value;
+
+                OnJoiningLobby.Invoke(new JoiningLobbyArgs
+                    { Manager = this, Status = JoiningLobbyStatus.JoinAllocation });
+
+                // Join the Relay server using the join code
+                var allocation = await JoinRelay(relayJoinCode);
+
+                if (allocation == null)
+                    throw new LobbyServiceException(new Exception("Failed to join relay server"));
+
+                // Set the relay server data for Unity Transport
                 NetworkManager.Singleton.GetComponent<UnityTransport>()
-                    .SetRelayServerData(joinAllocation.ToRelayServerData("wss"));
+                    .SetRelayServerData(allocation.ToRelayServerData("wss"));
+
                 OnJoiningLobby.Invoke(new JoiningLobbyArgs
                     { Manager = this, Status = JoiningLobbyStatus.StartClient });
-                MultiplayerManager.instance.StartClient();
-                return joinAllocation;
+
+                // Start the client
+                MultiplayerManager.StartClient();
+
+                return allocation;
             }
             catch (LobbyServiceException e)
             {
                 Debug.LogException(e);
-                OnJoinLobbyFailed.Invoke(new LobbyExceptionArgs
+                LastLobbyException = new LobbyExceptionArgs
                 {
                     Manager = this,
-                    Exception = e
-                });
+                    Exception = e,
+                    Message = "Fail to join lobby"
+                };
+                OnJoinLobbyFailed.Invoke(LastLobbyException);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
             }
 
-            return null;
+            return default;
         }
+
+        private async UniTask<JoinAllocation> JoinRelay(string relayJoinCode)
+        {
+            try
+            {
+                return await RelayService.Instance.JoinAllocationAsync(relayJoinCode);
+            }
+            catch (RelayServiceException e)
+            {
+                Debug.LogException(e);
+                return default;
+            }
+        }
+
 
         private async UniTask LeaveLobby()
         {

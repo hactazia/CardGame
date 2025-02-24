@@ -1,17 +1,14 @@
 ﻿using CardGameVR.UI;
 using UnityEngine;
 
-namespace CardGameVR.Players
+namespace CardGameVR.Controllers
 {
-    public abstract class Player : MonoBehaviour
+    public abstract class Controller : MonoBehaviour
     {
         public abstract void Recenter();
         public Menu menu;
 
-        public virtual void Awake()
-        {
-            Recenter();
-        }
+        public virtual void Awake() => Recenter();
 
         public abstract Vector3 GetPosition();
         public abstract Quaternion GetRotation();
@@ -40,7 +37,7 @@ namespace CardGameVR.Players
             return false;
         }
 
-        public bool TryCast<T>(out T player) where T : Player
+        public bool TryCast<T>(out T player) where T : Controller
         {
             player = this as T;
             return player;

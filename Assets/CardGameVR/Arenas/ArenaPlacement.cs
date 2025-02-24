@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using CardGameVR.Controllers;
+using CardGameVR.Players;
+using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace CardGameVR.Arenas
@@ -7,7 +11,19 @@ namespace CardGameVR.Arenas
     {
         private static readonly int IsOccupiedIndex = Animator.StringToHash("IsOccupied");
         private static readonly int IsLocalPlayerIndex = Animator.StringToHash("IsLocalPlayer");
-        public Animator animator;
+
+        [Header("References")] public Animator animator;
+        public PlayerAnchor playerAnchor;
+
+        [Header("Network")] public NetworkObject player;
+        public ulong clientId = ulong.MaxValue;
+
+        public void Awake()
+        {
+            clientId = ulong.MaxValue;
+            animator.SetBool(IsOccupiedIndex, false);
+            animator.SetBool(IsLocalPlayerIndex, false);
+        }
 
         internal int GetPlacementIndex()
         {
@@ -17,6 +33,7 @@ namespace CardGameVR.Arenas
             return -1;
         }
 
+
         public void Start()
         {
             Multiplayer.MultiplayerManager.OnClientJoined.AddListener(OnClientJoined);
@@ -25,22 +42,56 @@ namespace CardGameVR.Arenas
 
         private void OnClientJoined(Multiplayer.ClientJoinedArgs args)
         {
-            if (!args.Manager.TryGetPlayerData(args.ClientId, out var playerData))
+            var placementIndex = ArenaDescriptor.GetPlayerIndex(args.ClientId);
+            if (placementIndex > -1)
+            {
+                Debug.Log($"Player {args.ClientId} already joined at placement {placementIndex}");
                 return;
-            if (playerData.Placement != GetPlacementIndex())
-                return;
+            }
+
             Debug.Log($"Player {args.ClientId} joined at placement {GetPlacementIndex()}");
-            animator.SetBool(IsLocalPlayerIndex, args.Manager.IsPlayerIsLocal(args.ClientId));
+
+            if (Multiplayer.MultiplayerManager.IsPlayerIsLocal(args.ClientId) && playerAnchor)
+            {
+                Debug.Log("Teleport local player to anchor");
+                playerAnchor.IsDefault = true;
+                ControllerManager.Controller.Teleport(playerAnchor.transform);
+            }
+
+            if (Multiplayer.MultiplayerManager.IsServer())
+            {
+                Debug.Log($"Spawn player for client {args.ClientId}");
+                var description = ArenaDescriptor.Instance;
+                var playerInstance = Instantiate(description.playerPrefab.gameObject, transform);
+                player = playerInstance.GetComponent<NetworkObject>();
+                player.SpawnAsPlayerObject(args.ClientId, true);
+            }
+            
+            clientId = args.ClientId;
+            animator.SetBool(IsLocalPlayerIndex, Multiplayer.MultiplayerManager.IsPlayerIsLocal(args.ClientId));
             animator.SetBool(IsOccupiedIndex, true);
         }
 
         private void OnClientLeft(Multiplayer.ClientLeftArgs args)
         {
-            if (!args.Manager.TryGetPlayerData(args.ClientId, out var playerData))
+            if (clientId != args.ClientId)
                 return;
-            if (playerData.Placement != GetPlacementIndex())
-                return;
+
             Debug.Log($"Player {args.ClientId} left from placement {GetPlacementIndex()}");
+
+            if (Multiplayer.MultiplayerManager.IsServer())
+            {
+                player.Despawn();
+                player = null;
+            }
+
+            if (Multiplayer.MultiplayerManager.IsPlayerIsLocal(args.ClientId) && playerAnchor)
+            {
+                playerAnchor.IsDefault = false;
+                ControllerManager.Controller.Teleport(playerAnchor.transform);
+            }
+
+            clientId = ulong.MaxValue;
             animator.SetBool(IsOccupiedIndex, false);
             animator.SetBool(IsLocalPlayerIndex, false);
         }

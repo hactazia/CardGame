@@ -1,5 +1,4 @@
 ﻿using System;
-using CardGameVR.Teams;
 using Unity.Collections;
 using Unity.Netcode;
 
