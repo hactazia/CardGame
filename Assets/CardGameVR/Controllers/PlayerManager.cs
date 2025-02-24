@@ -1,5 +1,7 @@
 ﻿using CardGameVR.XR;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace CardGameVR.Players
 {
@@ -14,13 +16,16 @@ namespace CardGameVR.Players
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        public static void OnBeforeSceneLoad()
+        public static void OnBeforeSceneLoad() => OnBeforeSceneLoadAsync().Forget();
+
+        private static async UniTask OnBeforeSceneLoadAsync()
         {
             if (!GameManager.StartGameFlag) return;
             Debug.Log("PlayerManager.OnBeforeSceneLoad()");
             if (XRManager.IsXRActive())
-                SetXRPlayer();
-            else SetDesktopPlayer();
+                await SetXRPlayer();
+            else await SetDesktopPlayer();
+            Player.menu.Close();
             XRManager.OnXRHeadsetChange.AddListener(OnXRHeadsetChange);
             GameManager.RemoveOperation(nameof(PlayerManager));
         }
@@ -30,26 +35,26 @@ namespace CardGameVR.Players
         private static void OnXRHeadsetChange(bool active)
         {
             if (Player && active == Player.TryCast(out XRPlayer _)) return;
-            if (active) SetXRPlayer();
-            else SetDesktopPlayer();
+            if (active) SetXRPlayer().Forget();
+            else SetDesktopPlayer().Forget();
         }
 
-        private static void SetXRPlayer()
+        private static async UniTask SetXRPlayer()
         {
             DestroyPreviousPlayer();
             Debug.Log("Setup XR Player");
-            var prefab = Resources.Load<GameObject>("XRPlayer");
+            var prefab = await Addressables.LoadAssetAsync<GameObject>("XRPlayer").ToUniTask();
             var o = Object.Instantiate(prefab);
             o.name = $"[{nameof(XRPlayer)}]";
             Object.DontDestroyOnLoad(o.gameObject);
             Player = o.GetComponent<Player>();
         }
 
-        private static void SetDesktopPlayer()
+        private static async UniTask SetDesktopPlayer()
         {
             DestroyPreviousPlayer();
             Debug.Log("Setup Desktop Player");
-            var prefab = Resources.Load<GameObject>("DesktopPlayer");
+            var prefab = await Addressables.LoadAssetAsync<GameObject>("DesktopPlayer").ToUniTask();
             var o = Object.Instantiate(prefab);
             o.name = $"[{nameof(DesktopPlayer)}]";
             Object.DontDestroyOnLoad(o.gameObject);

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using CardGameVR.UI;
 using UnityEngine;
 
 namespace CardGameVR.Players
@@ -6,8 +6,9 @@ namespace CardGameVR.Players
     public abstract class Player : MonoBehaviour
     {
         public abstract void Recenter();
+        public Menu menu;
 
-        public void Awake()
+        public virtual void Awake()
         {
             Recenter();
         }
@@ -19,12 +20,25 @@ namespace CardGameVR.Players
 
         public void Teleport(Vector3 position, Quaternion rotation)
         {
-            PlayerAnchor.Instance.transform.position = position;
-            PlayerAnchor.Instance.transform.rotation = rotation;
+            SetPosition(position);
+            SetRotation(rotation);
         }
 
         public void Teleport(Transform t)
             => Teleport(t.position, t.rotation);
+
+        public virtual bool TryGetTransform(HumanBodyBones bone, out Transform t)
+        {
+            var animator = GetComponent<Animator>();
+            if (animator)
+            {
+                t = animator.GetBoneTransform(bone);
+                return t;
+            }
+
+            t = null;
+            return false;
+        }
 
         public bool TryCast<T>(out T player) where T : Player
         {

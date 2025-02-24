@@ -1,12 +1,15 @@
 ﻿using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
+using UnityEngine.XR.Interaction.Toolkit.Inputs;
 
 namespace CardGameVR.Players
 {
     public class XRPlayer : Player
     {
-        public Camera playerCamera;
+        public XROrigin xrOrigin;
+        public XRInputModalityManager inputModality;
         public InputActionReference recenterAction;
         public Transform physicalMenu;
 
@@ -33,17 +36,13 @@ namespace CardGameVR.Players
             => transform.position;
 
         public override Quaternion GetRotation()
-            => playerCamera.transform.rotation;
+            => xrOrigin.Camera.transform.rotation;
 
         protected override void SetPosition(Vector3 position)
-        {
-            var xrOrigin = GetComponent<XROrigin>();
-            xrOrigin.MoveCameraToWorldLocation(position + transform.up * xrOrigin.CameraInOriginSpaceHeight);
-        }
-
+            => xrOrigin.MoveCameraToWorldLocation(position + transform.up * xrOrigin.CameraInOriginSpaceHeight);
+        
         protected override void SetRotation(Quaternion rotation)
         {
-            var xrOrigin = GetComponent<XROrigin>();
             var up = rotation * Vector3.up;
             var forward = rotation * Vector3.forward;
             xrOrigin.MatchOriginUpCameraForward(up, forward);
@@ -52,7 +51,7 @@ namespace CardGameVR.Players
         public override void Recenter()
         {
             Debug.Log("XR Re-centering");
-            if(!PlayerAnchor.Instance) return;
+            if (!PlayerAnchor.Instance) return;
             var anchor = PlayerAnchor.Instance.transform;
             Teleport(anchor);
             if (!physicalMenu) return;
@@ -62,12 +61,48 @@ namespace CardGameVR.Players
 
         public void OnDrawGizmos()
         {
-            var xrOrigin = GetComponent<XROrigin>();
             if (!xrOrigin) return;
             Gizmos.color = Color.blue;
             Gizmos.DrawWireSphere(xrOrigin.CameraInOriginSpacePos, 0.1f);
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(xrOrigin.OriginInCameraSpacePos, 0.1f);
+        }
+
+
+        public override bool TryGetTransform(HumanBodyBones bone, out Transform t)
+        {
+            if (bone == HumanBodyBones.Head)
+            {
+                t = xrOrigin.Camera.transform;
+                return true;
+            }
+
+            if (bone == HumanBodyBones.LeftHand)
+            {
+                if (!inputModality.leftController.activeSelf)
+                {
+                    t = null;
+                    return false;
+                }
+
+                t = inputModality.leftController.transform;
+                return true;
+            }
+
+            if (bone == HumanBodyBones.RightHand)
+            {
+                if (!inputModality.rightController.activeSelf)
+                {
+                    t = null;
+                    return false;
+                }
+
+                t = inputModality.rightController.transform;
+                return true;
+            }
+
+            t = null;
+            return false;
         }
     }
 
