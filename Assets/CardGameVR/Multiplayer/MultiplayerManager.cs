@@ -1,6 +1,8 @@
 ﻿using CardGameVR.Arenas;
+using Cysharp.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace CardGameVR.Multiplayer
 {
@@ -15,10 +17,10 @@ namespace CardGameVR.Multiplayer
         public static bool IsPlayerIsLocal(ulong clientId) => clientId == NetworkManager.Singleton.LocalClientId;
         public static bool IsServer() => NetworkManager.Singleton.IsServer;
 
-        public static void StartHost()
+        public static async UniTask StartHost()
         {
             NetworkManager.Singleton.OnClientStarted += () => Debug.Log("ClientStarted");
-            NetworkManager.Singleton.OnServerStopped += _ => Debug.Log("ServerStopped");
+            NetworkManager.Singleton.OnServerStopped += OnServerStopped;
             NetworkManager.Singleton.OnClientConnectedCallback += _ => Debug.Log("ClientConnected");
             NetworkManager.Singleton.OnClientDisconnectCallback += _ => Debug.Log("ClientDisconnect");
             NetworkManager.Singleton.OnConnectionEvent += (_, _) => Debug.Log("ConnectionEvent");
@@ -29,6 +31,13 @@ namespace CardGameVR.Multiplayer
             NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Server_OnClientDisconnectCallback;
             NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_Client_OnClientConnectedCallback;
             NetworkManager.Singleton.StartHost();
+            await NetworkParty.Spawn();
+        }
+
+        private static void OnServerStopped(bool a)
+        {
+            Debug.Log("Server stopped!");
+            NetworkParty.Destroy();
         }
 
         public static void StartClient()

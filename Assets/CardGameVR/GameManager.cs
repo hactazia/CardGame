@@ -69,6 +69,7 @@ namespace CardGameVR
             var netPrefab = await Addressables.LoadAssetAsync<GameObject>("NetworkManager").ToUniTask();
             game.networkManager = Instantiate(netPrefab).GetComponent<NetworkManager>();
             game.networkManager.gameObject.name = $"[{nameof(NetworkManager)}]";
+            game.networkManager.AddNetworkPrefab(await Addressables.LoadAssetAsync<GameObject>("NetworkParty"));
             DontDestroyOnLoad(game.networkManager.gameObject);
             var lobPrefab = await Addressables.LoadAssetAsync<GameObject>("LobbyManager").ToUniTask();
             game.lobbyManager = Instantiate(lobPrefab).GetComponent<LobbyManager>();

@@ -1,4 +1,5 @@
 using System;
+using CardGameVR.Cards.Groups;
 using CardGameVR.Controllers;
 using Unity.Netcode;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace CardGameVR.Arenas
         [SerializeField] public ArenaPlacement[] placements = Array.Empty<ArenaPlacement>();
         public static int MaxPlayerCount => Instance.placements.Length;
 
+        [SerializeField] public GridCardGroup gameBoard;
         [SerializeField] public NetworkObject playerPrefab;
 
         internal static int GetPlayerIndex(ulong clientId)

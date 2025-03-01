@@ -66,11 +66,12 @@ namespace CardGameVR.Arenas
                 player = playerInstance.GetComponent<NetworkObject>();
                 player.SpawnAsPlayerObject(args.ClientId, true);
             }
-            
+
             clientId = args.ClientId;
             animator.SetBool(IsLocalPlayerIndex, Multiplayer.MultiplayerManager.IsPlayerIsLocal(args.ClientId));
             animator.SetBool(IsOccupiedIndex, true);
         }
+
 
         private void OnClientLeft(Multiplayer.ClientLeftArgs args)
         {

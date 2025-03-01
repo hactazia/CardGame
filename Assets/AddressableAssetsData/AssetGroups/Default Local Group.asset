@@ -30,6 +30,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8e16377d4d2f37c499b28aadeb9c58dd
+    m_Address: TestCard
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aef64549ba6086b40badd9db0904f831
+    m_Address: NetworkParty
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b028fb18757f0cc459ded8de8789a505
     m_Address: XRPlayer
     m_ReadOnly: 0
