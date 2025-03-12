@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Default Local Group
   m_EditorClassIdentifier: 
   m_GroupName: Default Local Group
-  m_GUID: a7604fe12bf61da47842abcef05bdd84
+  m_GUID: a7d3857d543329c4d8a3e8a193722dce
   m_SerializeEntries:
   - m_GUID: 4b92d8d9aca8f514d9ff4b6783a44126
     m_Address: LobbyManager
@@ -46,8 +46,8 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
-  m_Settings: {fileID: 11400000, guid: d66a27d8ec8e58e408e999edd81768b4, type: 2}
+  m_Settings: {fileID: 11400000, guid: 669a7a395bfaebc4b9c78262a4596143, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 62fe567d3fc8f4a438ac9f4153d1d959, type: 2}
-    - {fileID: 11400000, guid: 19b58980f463a5a48a2bd8f9227cc4ef, type: 2}
+    - {fileID: 11400000, guid: 8865747159d5fd54bb2c48e3b819d12a, type: 2}
+    - {fileID: 11400000, guid: 547b0f6337da9d84cbf330ae68f4554d, type: 2}

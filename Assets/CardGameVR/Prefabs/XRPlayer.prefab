@@ -973,6 +973,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 188891476283989877}
     m_Modifications:
+    - target: {fileID: 120821008343774824, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: Partie rapide
+      objectReference: {fileID: 0}
     - target: {fileID: 130947498689387863, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
       propertyPath: m_Color.a
       value: 0.7882353
@@ -1109,9 +1113,21 @@ PrefabInstance:
       propertyPath: m_Color.a
       value: 0.011764706
       objectReference: {fileID: 0}
+    - target: {fileID: 1235292465735133415, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: Rejoindre
+      objectReference: {fileID: 0}
     - target: {fileID: 1280379621907134013, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1300031517624537832, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: "Param\xE8tres"
+      objectReference: {fileID: 0}
+    - target: {fileID: 1548254053228619063, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: "Pr\xE9paration de la partie..."
       objectReference: {fileID: 0}
     - target: {fileID: 1650827427549324561, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
       propertyPath: m_Name
@@ -1145,14 +1161,54 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2784678329032838283, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: "Partie personnalis\xE9e - Cr\xE9er"
+      objectReference: {fileID: 0}
+    - target: {fileID: 3041043192349007623, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: Nom du lobby
+      objectReference: {fileID: 0}
+    - target: {fileID: 3238381785600914197, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: Matchmaking
+      objectReference: {fileID: 0}
+    - target: {fileID: 3262510429297932969, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: Rejoindre par code
+      objectReference: {fileID: 0}
+    - target: {fileID: 3604845185100467451, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: '{0}'
+      objectReference: {fileID: 0}
+    - target: {fileID: 3752321917231578546, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: Rejoindre automatiquement
+      objectReference: {fileID: 0}
+    - target: {fileID: 3953195236017904626, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: Liste des parties
+      objectReference: {fileID: 0}
+    - target: {fileID: 4223963091234808758, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: "Cr\xE9dits"
+      objectReference: {fileID: 0}
     - target: {fileID: 4366494349220262720, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4526292549154362473, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: Collection
       objectReference: {fileID: 0}
     - target: {fileID: 4577450591892120142, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
       propertyPath: m_Color.a
       value: 0.49411765
       objectReference: {fileID: 0}
+    - target: {fileID: 4746878486076505640, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: "Priv\xE9"
+      objectReference: {fileID: 0}
     - target: {fileID: 4746878486942911741, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1177,6 +1233,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5027710960498605994, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: OK
+      objectReference: {fileID: 0}
+    - target: {fileID: 5224837853908150307, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: "Cr\xE9ation de la partie"
+      objectReference: {fileID: 0}
     - target: {fileID: 5341844532240470569, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1200,6 +1264,22 @@ PrefabInstance:
     - target: {fileID: 5341844532240470569, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5382746993176176030, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: Code...
+      objectReference: {fileID: 0}
+    - target: {fileID: 5407048274991012041, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: Partie rapide
+      objectReference: {fileID: 0}
+    - target: {fileID: 5410228372012615350, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5486709981672215501, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: "Connexion \xE0 la partie"
       objectReference: {fileID: 0}
     - target: {fileID: 5528142478441297691, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1225,6 +1305,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -64
       objectReference: {fileID: 0}
+    - target: {fileID: 6193023097603816734, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: "Partie personnalis\xE9e"
+      objectReference: {fileID: 0}
     - target: {fileID: 6836729571135275341, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
@@ -1232,6 +1316,34 @@ PrefabInstance:
     - target: {fileID: 6836729571135275341, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961900710815845563, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: "Partie personnalis\xE9e - Rejoindre"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7237293180612470306, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: "Cr\xE9er"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7303509254573969963, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: '{0}'
+      objectReference: {fileID: 0}
+    - target: {fileID: 7327137936800967781, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: Lancer
+      objectReference: {fileID: 0}
+    - target: {fileID: 7666544750641727424, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: Quitter
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710920335398345639, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: "Aucune partie trouv\xE9e"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7956015354473880397, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
+      propertyPath: m_text
+      value: "Pr\xE9paration de la partie..."
       objectReference: {fileID: 0}
     - target: {fileID: 7956015354473880397, guid: acd9c44bb8652fa4683c2ba33c6818d7, type: 3}
       propertyPath: m_fontColor32.rgba
@@ -1314,6 +1426,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 592680885563673318, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: "Param\xE8tres"
+      objectReference: {fileID: 0}
     - target: {fileID: 862567415962624940, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1394,6 +1510,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1063478811981879349, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: Rejoindre
+      objectReference: {fileID: 0}
+    - target: {fileID: 1328646758714876271, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: "Aucune partie trouv\xE9e"
+      objectReference: {fileID: 0}
     - target: {fileID: 1560101844726594516, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1418,6 +1542,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1639393392611314106, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: Quitter
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988942214561631999, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2106136288787873637, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: "Priv\xE9"
+      objectReference: {fileID: 0}
     - target: {fileID: 2128678785520808275, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1441,10 +1577,46 @@ PrefabInstance:
     - target: {fileID: 2128678785520808275, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2359692120393692283, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: "Cr\xE9er"
+      objectReference: {fileID: 0}
+    - target: {fileID: 2463059564225309920, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: OK
       objectReference: {fileID: 0}
     - target: {fileID: 2507419523168900029, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
       propertyPath: m_Name
       value: xr_menu
+      objectReference: {fileID: 0}
+    - target: {fileID: 2672481926227771230, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: "Partie personnalis\xE9e"
+      objectReference: {fileID: 0}
+    - target: {fileID: 2923752276179173116, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: Rejoindre par code
+      objectReference: {fileID: 0}
+    - target: {fileID: 3876102433277509878, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: Partie rapide
+      objectReference: {fileID: 0}
+    - target: {fileID: 3919540886970917508, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: '{0}'
+      objectReference: {fileID: 0}
+    - target: {fileID: 4308812115401184449, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: Matchmaking
+      objectReference: {fileID: 0}
+    - target: {fileID: 4457778996090298296, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: Partie rapide
+      objectReference: {fileID: 0}
+    - target: {fileID: 4728242232026892066, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: Nom du lobby
       objectReference: {fileID: 0}
     - target: {fileID: 5178717084884604328, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1469,6 +1641,22 @@ PrefabInstance:
     - target: {fileID: 5178717084884604328, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5435340461995607447, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: Liste des parties
+      objectReference: {fileID: 0}
+    - target: {fileID: 5506176756661058082, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: Lancer
+      objectReference: {fileID: 0}
+    - target: {fileID: 6430700840889786944, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: '{0}'
+      objectReference: {fileID: 0}
+    - target: {fileID: 6890080904363763058, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: Collection
       objectReference: {fileID: 0}
     - target: {fileID: 7442931642058343179, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
       propertyPath: m_SizeDelta.y
@@ -1501,6 +1689,14 @@ PrefabInstance:
     - target: {fileID: 7493611542654681227, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -144
+      objectReference: {fileID: 0}
+    - target: {fileID: 7831595588415048078, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: "Cr\xE9dits"
+      objectReference: {fileID: 0}
+    - target: {fileID: 8368852135668107855, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
+      propertyPath: m_text
+      value: Liste des parties
       objectReference: {fileID: 0}
     - target: {fileID: 8528670022241108159, guid: 047879bfee8bb4443bd341fac8d28f28, type: 3}
       propertyPath: m_AnchorMax.y

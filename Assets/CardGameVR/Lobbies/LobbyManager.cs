@@ -92,6 +92,7 @@ namespace CardGameVR.Lobbies
             if (!LobbyExists(_currentLobby)) return;
             if (_lastHeartbeat == DateTime.MaxValue) return;
             if (DateTime.Now - _lastHeartbeat <= TimeSpan.FromSeconds(HeartbeatDelay)) return;
+            if (!IsLobbyHost(_currentLobby)) return; // Ensure only the host sends the heartbeat
             _lastHeartbeat = DateTime.Now;
             LobbyHeartBeat().Forget();
         }

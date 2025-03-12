@@ -16,16 +16,24 @@ namespace CardGameVR.Controllers
 
         private void Start()
         {
-            recenterAction.action.Enable();
-            recenterAction.action.performed += OnPerformCenter;
+            if (recenterAction)
+            {
+                recenterAction.action.Enable();
+                recenterAction.action.performed += OnPerformCenter;
+            }
+
             physicalMenu.SetParent(null);
             DontDestroyOnLoad(physicalMenu.gameObject);
         }
 
         public void OnDestroy()
         {
-            recenterAction.action.Disable();
-            recenterAction.action.performed -= OnPerformCenter;
+            if (recenterAction)
+            {
+                recenterAction.action.Disable();
+                recenterAction.action.performed -= OnPerformCenter;
+            }
+
             Destroy(physicalMenu.gameObject);
         }
 
@@ -41,7 +49,7 @@ namespace CardGameVR.Controllers
 
         protected override void SetPosition(Vector3 position)
             => xrOrigin.MoveCameraToWorldLocation(position + transform.up * xrOrigin.CameraInOriginSpaceHeight);
-        
+
         protected override void SetRotation(Quaternion rotation)
         {
             var up = rotation * Vector3.up;

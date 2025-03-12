@@ -98,8 +98,9 @@ namespace CardGameVR.XR
 
         public void Update()
         {
-            if (_isXRActive == XRSettings.isDeviceActive) return;
+            if (_isXRActive == XRSettings.isDeviceActive || noVRFlag) return;
             _isXRActive = XRSettings.isDeviceActive;
+            
             OnXRHeadsetChange.Invoke(_isXRActive);
         }
     }

@@ -88,6 +88,7 @@ namespace CardGameVR.UI
 
         protected virtual void CloseJoin()
         {
+            if (!LobbyManager.instance) return;
             LobbyManager.instance.autoRefresh = false;
             LobbyManager.OnRefreshLobbies.RemoveListener(OnRefreshLobbies);
         }

@@ -23,7 +23,7 @@ namespace CardGameVR.Multiplayer
             NetworkManager.Singleton.OnServerStopped += OnServerStopped;
             NetworkManager.Singleton.OnClientConnectedCallback += _ => Debug.Log("ClientConnected");
             NetworkManager.Singleton.OnClientDisconnectCallback += _ => Debug.Log("ClientDisconnect");
-            NetworkManager.Singleton.OnConnectionEvent += (_, _) => Debug.Log("ConnectionEvent");
+            NetworkManager.Singleton.OnConnectionEvent += NetworkManager_ConnectionCallback;
             NetworkManager.Singleton.OnSessionOwnerPromoted += _ => Debug.Log("SessionOwnerPromoted");
             NetworkManager.Singleton.OnTransportFailure += () => Debug.Log("TransportFailure");
             NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManager_ConnectionApprovalCallback;
@@ -34,11 +34,17 @@ namespace CardGameVR.Multiplayer
             await NetworkParty.Spawn();
         }
 
+        private static void NetworkManager_ConnectionCallback(NetworkManager arg1, ConnectionEventData arg2)
+        {
+            Debug.Log($"Connection of {arg2.ClientId} with {arg2.EventType}");
+        }
+
         private static void OnServerStopped(bool a)
         {
             Debug.Log("Server stopped!");
             NetworkParty.Destroy();
         }
+
 
         public static void StartClient()
         {

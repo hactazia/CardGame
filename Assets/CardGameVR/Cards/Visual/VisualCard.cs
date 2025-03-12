@@ -1,4 +1,4 @@
-﻿using CardGameVR.SciptableObjects;
+﻿using CardGameVR.ScriptableObjects;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
