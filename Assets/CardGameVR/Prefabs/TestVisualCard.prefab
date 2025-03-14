@@ -56,7 +56,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4755264312133149997
 RectTransform:
   m_ObjectHideFlags: 0
@@ -64,7 +64,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3949742327299606115}
-  m_LocalRotation: {x: -0, y: 0, z: -0.0000001872535, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -98,7 +98,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.5019608}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -216,7 +216,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -340,11 +340,11 @@ MonoBehaviour:
   tiltParent: {fileID: 493692796218342222}
   cardImage: {fileID: 4747649871575303044}
   followSpeed: 25
-  rotationAmount: 0
-  rotationSpeed: 0
-  autoTiltAmount: 0
-  manualTiltAmount: 0
-  tiltSpeed: 0
+  rotationAmount: 1.15
+  rotationSpeed: 10
+  autoTiltAmount: 4.08
+  manualTiltAmount: 2.72
+  tiltSpeed: 2.38
   scaleAnimations: 1
   scaleOnHover: 1.07
   scaleOnSelect: 1.2
@@ -359,3 +359,4 @@ MonoBehaviour:
   swapVibrato: 5
   useCurve: 1
   curve: {fileID: 11400000, guid: 62a9757e4308e0d4a963362e9ef41f7e, type: 2}
+  rotationOffset: {x: 90, y: 0, z: 0}

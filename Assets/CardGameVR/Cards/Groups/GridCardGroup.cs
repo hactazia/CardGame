@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
@@ -52,16 +53,7 @@ namespace CardGameVR.Cards.Groups
             }
 
             slots = GetComponentsInChildren<CardSlot>().ToArray();
-            
-            foreach (var slot in slots)
-            {
-                slot.Group = this;
-                if (slot.Card == null) continue;
-                slot.Card.PointerEnterEvent.AddListener(CardPointerEnter);
-                slot.Card.PointerExitEvent.AddListener(CardPointerExit);
-                slot.Card.BeginDragEvent.AddListener(BeginDrag);
-                slot.Card.EndDragEvent.AddListener(EndDrag);
-            }
+
 
             StartCoroutine(Frame());
         }
@@ -126,7 +118,7 @@ namespace CardGameVR.Cards.Groups
 
         private bool Remove(CardSlot slot)
         {
-            if (!Has(slot) || slot.Card == null) 
+            if (!Has(slot) || slot.Card == null)
                 return false;
             slot.SetCard(null);
             return true;
@@ -140,6 +132,20 @@ namespace CardGameVR.Cards.Groups
 
         public int SlotCount() => slots.Length;
         public int IndexOf(CardSlot slot) => Array.IndexOf(slots, slot);
+        public CardSlot GetSlot(int index) => slots[index];
+
         public bool Has(CardSlot slot) => Array.IndexOf(slots, slot) != -1;
+        
+        public CardSlot[] GetSlots()
+        {
+            var list = new List<CardSlot>();
+            for (var i = 0; i < SlotCount(); i++)
+                list.Add(GetSlot(i));
+            return list.ToArray();
+        }
+
+        public ICard[] GetCards()
+            => (from slot in GetSlots() where slot.Card != null select slot.Card)
+                .ToArray();
     }
 }

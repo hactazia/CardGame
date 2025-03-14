@@ -14,9 +14,15 @@ namespace CardGameVR.Interactions
             => selectable.OnPointerExit(new PointerEventData(EventSystem.current));
 
         public override void OnSelect()
-            => selectable.OnSelect(new BaseEventData(EventSystem.current));
+        {
+            selectable.OnPointerDown(new PointerEventData(EventSystem.current));
+            if (selectable is Toggle toggle)
+                toggle.isOn = !toggle.isOn;
+            else if (selectable is Button button)
+                button.OnPointerClick(new PointerEventData(EventSystem.current));
+        }
 
         public override void OnDeselect()
-            => selectable.OnDeselect(new BaseEventData(EventSystem.current));
+            => selectable.OnPointerUp(new PointerEventData(EventSystem.current));
     }
 }

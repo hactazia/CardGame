@@ -1,13 +1,14 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System;
+using System.Collections;
+using System.Linq;
 using CardGameVR.Arenas;
+using CardGameVR.Cards;
 using CardGameVR.Players;
 using Cysharp.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 
 namespace CardGameVR
 {
@@ -17,7 +18,7 @@ namespace CardGameVR
 
         public void CheckAllPlayersReady()
         {
-            if (ArenaDescriptor.MinPlayerCount > PlayerNetwork.PlayerCount)
+            if (ArenaDescriptor.Instance.partyConfiguration.minPlayers > PlayerNetwork.PlayerCount)
             {
                 Debug.LogWarning("Not enough players");
                 return;
@@ -138,9 +139,24 @@ namespace CardGameVR
                 for (var i = 0; i < lives.Length; i++)
                     lives[i] = 0;
                 player.Lives = lives;
+                player.ClearCards();
+                DrawCards(player).Forget();
             }
 
             Debug.Log("Starting game");
+        }
+
+        private async UniTask DrawCards(PlayerNetwork player)
+        {
+            for (var i = 0;
+                 i < ArenaDescriptor.Instance.partyConfiguration.initialNumberInHand &&
+                 i < ArenaDescriptor.Instance.partyConfiguration.maxCardInHand;
+                 i++)
+            {
+                if (i != 0)
+                    await UniTask.Delay(500);
+                player.DrawCard();
+            }
         }
 
         public static async UniTask WhenIsInstanced()
@@ -148,5 +164,8 @@ namespace CardGameVR
             while (!Instance)
                 await UniTask.Yield();
         }
+
+        public ICard[] GetBoardCards()
+            => Array.Empty<ICard>();
     }
 }

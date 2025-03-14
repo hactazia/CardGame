@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using CardGameVR.Cards.Groups;
 using CardGameVR.Controllers;
+using CardGameVR.Multiplayer;
 using CardGameVR.Players;
 using CardGameVR.ScriptableObjects;
 using Cysharp.Threading.Tasks;
@@ -19,12 +20,11 @@ namespace CardGameVR.Arenas
     public class ArenaDescriptor : MonoBehaviour
     {
         public static ArenaDescriptor Instance;
-        
+
         public PartyConfiguration partyConfiguration;
 
         [SerializeField] public ArenaPlacement[] placements = Array.Empty<ArenaPlacement>();
         public static int MaxPlayerCount => Instance.placements.Length;
-        public static int MinPlayerCount => 2;
 
         [SerializeField] public GridCardGroup gameBoard;
         [SerializeField] public NetworkObject playerPrefab;
@@ -38,6 +38,7 @@ namespace CardGameVR.Arenas
                 NetworkManager.Singleton.AddNetworkPrefab(playerPrefab.gameObject);
             Multiplayer.MultiplayerManager.OnClientJoined.AddListener(OnClientJoined);
             Multiplayer.MultiplayerManager.OnClientLeft.AddListener(OnClientLeft);
+            Multiplayer.MultiplayerManager.OnConnect.AddListener(OnConnect);
         }
 
         public void OnDestroy()
@@ -49,6 +50,7 @@ namespace CardGameVR.Arenas
                 NetworkManager.Singleton.RemoveNetworkPrefab(playerPrefab.gameObject);
             Multiplayer.MultiplayerManager.OnClientJoined.RemoveListener(OnClientJoined);
             Multiplayer.MultiplayerManager.OnClientLeft.RemoveListener(OnClientLeft);
+            Multiplayer.MultiplayerManager.OnConnect.RemoveListener(OnConnect);
         }
 
         public ArenaPlacement GetFreePlacement()
@@ -73,13 +75,21 @@ namespace CardGameVR.Arenas
                 player.SpawnAsPlayerObject(args.ClientId, true);
                 playerNetwork = player.GetComponent<PlayerNetwork>();
             }
+        }
 
-            playerNetwork = await PlayerNetwork.WhenPlayerSpawned(args.ClientId);
+        private void OnConnect(ConnectArgs args)
+            => OnConnectAsync(args).Forget();
 
-            var placement = GetFreePlacement();
-            if (!placement) return;
+        private async UniTask OnConnectAsync(ConnectArgs args)
+        {
+            var playerNetwork = await PlayerNetwork.WhenPlayerSpawned(args.ClientId);
 
-            await placement.SetPlayer(playerNetwork);
+            if (playerNetwork.IsLocalPlayer)
+            {
+                var placement = GetFreePlacement();
+                if (!placement) return;
+                playerNetwork.PlacementIndex = placement.GetPlacementIndex();
+            }
         }
 
         private void OnClientLeft(Multiplayer.ClientLeftArgs args)
@@ -94,6 +104,8 @@ namespace CardGameVR.Arenas
         }
 
         public ArenaPlacement GetPlacement(int value)
-            => value < placements.Length ? placements[value] : null;
+            => value >= 0 && value < placements.Length
+                ? placements[value]
+                : null;
     }
 }

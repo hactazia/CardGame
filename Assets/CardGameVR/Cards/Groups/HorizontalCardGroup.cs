@@ -29,18 +29,6 @@ namespace CardGameVR.Cards.Groups
 
         void Start()
         {
-            slots = GetComponentsInChildren<CardSlot>().ToList();
-
-            foreach (var slot in slots)
-            {
-                slot.Group = this;
-                if (slot.Card == null) continue;
-                slot.Card.PointerEnterEvent.AddListener(CardPointerEnter);
-                slot.Card.PointerExitEvent.AddListener(CardPointerExit);
-                slot.Card.BeginDragEvent.AddListener(BeginDrag);
-                slot.Card.EndDragEvent.AddListener(EndDrag);
-            }
-
             StartCoroutine(Frame());
         }
 
@@ -55,6 +43,8 @@ namespace CardGameVR.Cards.Groups
 
         public int SlotCount() => slots.Count;
         public int IndexOf(CardSlot slot) => slots.IndexOf(slot);
+        public CardSlot GetSlot(int index) => slots[index];
+
         public bool Has(CardSlot slot) => slots.Contains(slot);
 
         public bool Add(ICard card)
@@ -64,6 +54,7 @@ namespace CardGameVR.Cards.Groups
             var t = Instantiate(slotPrefab.gameObject, transform);
             t.name = $"[Slot] {slots.Count}";
             var slot = t.GetComponent<CardSlot>();
+            slots.Add(slot);
             slot.Group = this;
             slot.SetCard(card);
             if (!card.TryGetVisualCard(out _))
@@ -131,5 +122,17 @@ namespace CardGameVR.Cards.Groups
             foreach (var s in slots)
                 s.CardVisual?.UpdateIndex();
         }
+        
+        public CardSlot[] GetSlots()
+        {
+            var list = new List<CardSlot>();
+            for (var i = 0; i < SlotCount(); i++)
+                list.Add(GetSlot(i));
+            return list.ToArray();
+        }
+
+        public ICard[] GetCards()
+            => (from slot in GetSlots() where slot.Card != null select slot.Card)
+                .ToArray();
     }
 }

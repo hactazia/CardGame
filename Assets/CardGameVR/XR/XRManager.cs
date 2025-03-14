@@ -89,7 +89,7 @@ namespace CardGameVR.XR
 
         private void OnApplicationQuit()
         {
-            if (!XRGeneralSettings.Instance.Manager.activeLoader) return;
+            if (!XRGeneralSettings.Instance?.Manager.activeLoader) return;
             Debug.Log("Stopping XR...");
             XRGeneralSettings.Instance.Manager.StopSubsystems();
             XRGeneralSettings.Instance.Manager.DeinitializeLoader();

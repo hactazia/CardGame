@@ -1,23 +1,39 @@
 using CardGameVR.Cards.Slots;
 using CardGameVR.Cards.Visual;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Events;
 
 namespace CardGameVR.Cards.Types
 {
-    public class TankCard : MonoBehaviour, ICard
+    public class JumperCard : MonoBehaviour, ICard
     {
-        public static string GetTypeName() => "tank";
-        
-        private uint _id;
+        public static string GetTypeName() => "jumper";
+        public const uint MaxPresence = 4;
+        public const float DrawChances = 1f;
+
+        public static async UniTask<JumperCard> SpawnType()
+        {
+            var go = await Addressables.LoadAssetAsync<GameObject>("cards/" + GetTypeName());
+            var instance = Instantiate(go);
+            return instance.GetComponent<JumperCard>();
+        }
+
+        public string GetCardType()
+            => GetTypeName();
+
+        private int _id;
         private CardSlot _slot;
         private VisualCard _visualCard;
-
-        public TankCard()
-        {
-            _id = (uint)GetInstanceID();
-        }
         
+        public float selectionOffset = 10f;
+        
+        [Header("States")] public bool isSelected;
+        public bool isDragging;
+        public bool wasDragged;
+        public bool isHovering;
+
         [SerializeField] public VisualCard visualCardPrefab;
 
         public UnityEvent<ICard> PointerEnterEvent { get; } = new();
@@ -28,9 +44,9 @@ namespace CardGameVR.Cards.Types
         public UnityEvent<ICard, bool> PointerUpEvent { get; } = new();
         public UnityEvent<ICard> PointerDownEvent { get; } = new();
 
-        public uint GetId() => _id;
+        public int GetId() => _id;
 
-        public void SetId(uint id) => _id = id;
+        public void SetId(int id) => _id = id;
 
         public Transform GetTransform() => transform;
 
@@ -43,12 +59,41 @@ namespace CardGameVR.Cards.Types
             if (!handler)
                 throw new System.Exception("VisualCardHandler is null");
 
-            Debug.Log($"Spawning Visual Card: {visualCardPrefab}");
-
             var go = Instantiate(visualCardPrefab.gameObject, handler.transform);
             _visualCard = go.GetComponent<VisualCard>();
             _visualCard.Initialize(this);
             return _visualCard;
+        }
+
+        public void OnPointerEnter()
+        {
+            PointerEnterEvent.Invoke(this);
+            isHovering = true;
+        }
+
+        public void OnPointerExit()
+        {
+            PointerExitEvent.Invoke(this);
+            isHovering = false;
+        }
+
+        public void OnPointerDown()
+        {
+            PointerDownEvent.Invoke(this);
+        }
+
+        public void OnPointerUp()
+        {
+            if (wasDragged)
+                return;
+
+            isSelected = !isSelected;
+            SelectEvent.Invoke(this, isSelected);
+
+            if (isSelected)
+                transform.localPosition += transform.up * selectionOffset;
+            else
+                transform.localPosition = Vector3.zero;
         }
 
         public bool TryGetVisualCard(out VisualCard visual)
@@ -63,30 +108,36 @@ namespace CardGameVR.Cards.Types
             return true;
         }
 
-        public bool IsSelected()
+        public bool IsSelected
         {
-            throw new System.NotImplementedException();
+            get => isSelected;
+            set => isSelected = value;
         }
 
-        public bool IsDragging()
+        public bool IsDragging
         {
-            throw new System.NotImplementedException();
+            get => isDragging;
+            set => isDragging = value;
         }
 
-        public bool WasDragged()
+        public bool WasDragged
         {
-            throw new System.NotImplementedException();
+            get => wasDragged;
+            set => wasDragged = value;
         }
 
-        public bool IsHovering()
+        public bool IsHovering
         {
-            throw new System.NotImplementedException();
+            get => isHovering;
+            set => isHovering = value;
         }
 
-        public Vector3 GetSelectionOffset()
-        {
-            throw new System.NotImplementedException();
-        }
+        public Vector3 GetSelectionOffset() => Vector3.zero;
 
+        public void OnDestroy()
+        {
+            if (TryGetVisualCard(out var cardVisual))
+                Destroy(cardVisual.gameObject);
+        }
     }
 }

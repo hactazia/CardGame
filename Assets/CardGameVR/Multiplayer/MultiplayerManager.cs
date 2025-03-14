@@ -72,10 +72,10 @@ namespace CardGameVR.Multiplayer
             NotifyPlayerLeftClientRpc(clientId);
         }
 
-        private static void NetworkManager_Client_OnClientConnectedCallback(ulong obj)
+        private static void NetworkManager_Client_OnClientConnectedCallback(ulong clientId)
         {
             Debug.Log("I'm connected!");
-            OnConnect.Invoke(new ConnectArgs());
+            OnConnect.Invoke(new ConnectArgs() { ClientId = clientId });
         }
 
 

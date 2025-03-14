@@ -15,6 +15,16 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: a7d3857d543329c4d8a3e8a193722dce
   m_SerializeEntries:
+  - m_GUID: 0313211ce821eed4eaee8dd9311b12c9
+    m_Address: cards/tank
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0b2e43d887c18bd4abc4c3a3545d5704
+    m_Address: cards/jumper
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4b92d8d9aca8f514d9ff4b6783a44126
     m_Address: LobbyManager
     m_ReadOnly: 0

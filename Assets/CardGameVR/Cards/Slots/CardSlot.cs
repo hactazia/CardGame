@@ -10,23 +10,37 @@ using UnityEngine.Serialization;
 namespace CardGameVR.Cards.Slots
 {
     [RequireComponent(typeof(BoxCollider))]
-    public class CardSlot : EventInteractable
+    public class CardSlot : Interactable
     {
+        public bool interactable = true;
         public ICard Card;
 
         public ICardGroup Group;
 
-        public void Start()
-        {
-            OnRectTransformDimensionsChange();
+        public void Start() => OnRectTransformDimensionsChange();
 
-            onSelectEvent.AddListener(() => AddCard().Forget());
+        public override void OnHoverEnter()
+        {
+            if (!interactable) return;
+            Card?.OnPointerEnter();
         }
 
-        private async UniTask AddCard()
+        public override void OnHoverExit()
         {
-            if (Card != null) return;
-            Group.Set(this, await TestCard.Create());
+            if (!interactable) return;
+            Card?.OnPointerExit();
+        }
+
+        public override void OnSelect()
+        {
+            if (!interactable) return;
+            Card?.OnPointerUp();
+        }
+
+        public override void OnDeselect()
+        {
+            if (!interactable) return;
+            Card?.OnPointerDown();
         }
 
         private void OnRectTransformDimensionsChange()
@@ -49,11 +63,8 @@ namespace CardGameVR.Cards.Slots
         {
             Card = c;
             if (c == null) return;
-            Debug.Log($"Set card {c} to slot {this}");
-            Debug.Log($"a {c.GetTransform()}");
-            Debug.Log($"b {transform}");
             c.GetTransform().SetParent(transform);
-            c.GetTransform().localPosition = c.IsSelected()
+            c.GetTransform().localPosition = c.IsSelected
                 ? c.GetSelectionOffset()
                 : Vector3.zero;
         }
@@ -69,6 +80,6 @@ namespace CardGameVR.Cards.Slots
             UnityEditor.EditorGUILayout.LabelField("Group", slot.Group == null ? "null" : slot.Group.ToString());
             UnityEditor.EditorGUILayout.LabelField("Card", slot.Card == null ? "null" : slot.Card.ToString());
         }
-    }  
+    }
 #endif
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CardGameVR.API;
 using CardGameVR.Arenas;
+using CardGameVR.Cards;
 using CardGameVR.Controllers;
 using Cysharp.Threading.Tasks;
 using Unity.Collections;
@@ -26,6 +27,14 @@ namespace CardGameVR.Players
             return GetPlayer(clientId);
         }
 
+        public ICard[] GetHandCards()
+        {
+            var placement = ArenaDescriptor.Instance.GetPlacement(PlacementIndex);
+            return !placement
+                ? Array.Empty<ICard>()
+                : placement.handCardGroup.GetCards();
+        }
+
         public Transform head;
         public Transform leftHand;
         public Transform rightHand;
@@ -34,6 +43,11 @@ namespace CardGameVR.Players
         public UnityEvent<string> onPlayerIdChanged = new();
         public UnityEvent<bool> onIsReadyChanged = new();
         public UnityEvent<int, int> onPlacementIndexChanged = new();
+
+        public UnityEvent<PlayerHandCard> onPlayerCardAdded = new();
+        public UnityEvent<PlayerHandCard> onPlayerCardRemoved = new();
+        public UnityEvent<PlayerHandCard> onPlayerCardUpdated = new();
+        public UnityEvent onPlayerCardCleared = new();
 
         // life is an array of different life progress (between -1 and 1) 
         // is one of life progress is under -1 or above 1, the player is dead
@@ -51,6 +65,26 @@ namespace CardGameVR.Players
             _placementIndex.OnValueChanged += (oldValue, newValue)
                 => onPlacementIndexChanged.Invoke(oldValue, newValue);
             _lives.OnListChanged += OnLiveChanged;
+            _handCards.OnListChanged += OnPlayerCardChanged;
+        }
+
+        private void OnPlayerCardChanged(NetworkListEvent<PlayerHandCard> changeEvent)
+        {
+            switch (changeEvent.Type)
+            {
+                case NetworkListEvent<PlayerHandCard>.EventType.Add:
+                    onPlayerCardAdded.Invoke(changeEvent.Value);
+                    break;
+                case NetworkListEvent<PlayerHandCard>.EventType.Remove:
+                    onPlayerCardRemoved.Invoke(changeEvent.Value);
+                    break;
+                case NetworkListEvent<PlayerHandCard>.EventType.Insert:
+                    onPlayerCardUpdated.Invoke(changeEvent.Value);
+                    break;
+                case NetworkListEvent<PlayerHandCard>.EventType.Clear:
+                    onPlayerCardCleared.Invoke();
+                    break;
+            }
         }
 
         private void OnLiveChanged(NetworkListEvent<float> changeEvent)
@@ -65,9 +99,9 @@ namespace CardGameVR.Players
         {
             Debug.Log($"OnPlacementIndexChanged {oldValue} -> {newValue}");
             if (oldValue != -1)
-                ArenaDescriptor.Instance.GetPlacement(oldValue)?.SetPlayer(null);
+                ArenaDescriptor.Instance.GetPlacement(oldValue)?.SetPlayer(null, true);
             if (newValue != -1)
-                ArenaDescriptor.Instance.GetPlacement(newValue)?.SetPlayer(this);
+                ArenaDescriptor.Instance.GetPlacement(newValue)?.SetPlayer(this, true);
         }
 
         public override void OnDestroy()
@@ -214,8 +248,8 @@ namespace CardGameVR.Players
             leftHand.rotation = tLeftHand?.rotation ?? Quaternion.identity;
             rightHand.position = tRightHand?.position ?? Vector3.zero;
             rightHand.rotation = tRightHand?.rotation ?? Quaternion.identity;
-            rightHand.gameObject.SetActive(hasRightHand);
-            leftHand.gameObject.SetActive(hasLeftHand);
+            rightHand.gameObject.SetActive(!IsLocalPlayer);
+            leftHand.gameObject.SetActive(!IsLocalPlayer);
 
             UpdateNetworkTransformsServerRpc(
                 head.position, head.rotation,
@@ -254,8 +288,21 @@ namespace CardGameVR.Players
         private readonly NetworkVariable<FixedString128Bytes> _playerName = new();
         private readonly NetworkVariable<FixedString128Bytes> _playerId = new();
         private readonly NetworkVariable<bool> _isReady = new();
-        private readonly NetworkVariable<int> _placementIndex = new();
+        private readonly NetworkVariable<int> _placementIndex = new(-1);
         private readonly NetworkList<float> _lives = new();
+
+        private readonly NetworkList<PlayerHandCard> _handCards = new();
+
+        public PlayerHandCard[] Hand
+        {
+            get
+            {
+                var cards = new PlayerHandCard[_handCards.Count];
+                for (var i = 0; i < _handCards.Count; i++)
+                    cards[i] = _handCards[i];
+                return cards;
+            }
+        }
 
         private void LateUpdate()
         {
@@ -269,22 +316,93 @@ namespace CardGameVR.Players
             rightHand.gameObject.SetActive(_hasRightHand.Value);
             leftHand.gameObject.SetActive(_hasLeftHand.Value);
         }
-    }
+
+        public void DrawCard()
+        {
+            if (IsServer)
+                AddCardToHand();
+            else DrawCardServerRpc();
+        }
+
+        [ServerRpc]
+        private void DrawCardServerRpc()
+        {
+            Debug.Log($"DrawCardServerRpc({OwnerClientId})");
+            AddCardToHand();
+        }
+
+        private void AddCardToHand()
+        {
+            Debug.Log($"AddCardToHand({OwnerClientId})");
+            var draw = CardTypeManager.DrawType();
+            if (string.IsNullOrEmpty(draw))
+            {
+                Debug.LogError("No card to draw");
+                return;
+            }
+
+            _handCards.Add(new PlayerHandCard
+            {
+                CardType = new FixedString32Bytes(draw),
+                IsVisibleForLocalPlayer = true,
+                IsVisibleForOtherPlayers = false,
+                Id = CardTypeManager.GetNextId()
+            });
+        }
+
+        public void ClearCards()
+        {
+            if (IsServer)
+                _handCards.Clear();
+            else ClearCardsServerRpc();
+        }
+
+        [ServerRpc]
+        private void ClearCardsServerRpc()
+            => _handCards.Clear();
 
 #if UNITY_EDITOR
-    [UnityEditor.CustomEditor(typeof(PlayerNetwork))]
-    public class PlayerNetworkEditor : UnityEditor.Editor
-    {
-        public override void OnInspectorGUI()
+        [UnityEditor.CustomEditor(typeof(PlayerNetwork))]
+        public class PlayerNetworkEditor : UnityEditor.Editor
         {
-            base.OnInspectorGUI();
-            var playerNetwork = (PlayerNetwork)target;
-            GUILayout.Label(playerNetwork.IsOwner ? "Player is owner" : "Player is not owner");
-            GUILayout.Label($"Player name: {playerNetwork.PlayerName}");
-            GUILayout.Label($"Owner Id: {playerNetwork.OwnerClientId}");
-            GUILayout.Label($"Player is ready: {playerNetwork.IsReady}");
-            GUILayout.Label($"Placement Index: {playerNetwork.PlacementIndex}");
+            public override void OnInspectorGUI()
+            {
+                base.OnInspectorGUI();
+                var playerNetwork = (PlayerNetwork)target;
+                UnityEditor.EditorGUILayout.LabelField(
+                    playerNetwork.IsOwner ? "Player is owner" : "Player is not owner");
+                UnityEditor.EditorGUILayout.LabelField($"Player name: {playerNetwork.PlayerName}");
+                UnityEditor.EditorGUILayout.LabelField($"Owner Id: {playerNetwork.OwnerClientId}");
+                UnityEditor.EditorGUILayout.LabelField($"Player is ready: {playerNetwork.IsReady}");
+                UnityEditor.EditorGUILayout.LabelField($"Placement Index: {playerNetwork.PlacementIndex}");
+                UnityEditor.EditorGUILayout.Space();
+
+                if (playerNetwork.IsOwner)
+                {
+                    if (UnityEditor.EditorGUILayout.LinkButton("Draw card"))
+                        playerNetwork.DrawCard();
+                    if (UnityEditor.EditorGUILayout.LinkButton(playerNetwork.IsReady ? "Unready" : "Ready"))
+                        playerNetwork.IsReady = !playerNetwork.IsReady;
+                }
+
+                UnityEditor.EditorGUILayout.Space();
+                UnityEditor.EditorGUILayout.LabelField($"Cards in hand: {playerNetwork._handCards.Count}");
+                foreach (var card in playerNetwork._handCards)
+                    UnityEditor.EditorGUILayout.LabelField($"(${card.CardType}) {card.Id}");
+                UnityEditor.EditorGUILayout.Space();
+                // life
+                UnityEditor.EditorGUILayout.LabelField("Life");
+                for (var i = 0; i < playerNetwork._lives.Count; i++)
+                {
+                    var life = playerNetwork._lives[i];
+                    UnityEditor.EditorGUILayout.BeginHorizontal();
+                    UnityEditor.EditorGUILayout.LabelField($"Life {i}");
+                    life = UnityEditor.EditorGUILayout.Slider(life, -1, 1);
+                    UnityEditor.EditorGUILayout.EndHorizontal();
+                    playerNetwork._lives[i] = life;
+                }
+            }
         }
-    }
 #endif
+    }
 }

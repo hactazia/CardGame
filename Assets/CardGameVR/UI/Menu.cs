@@ -31,7 +31,6 @@ namespace CardGameVR.UI
 
         public void OnPointerEnter(string menu)
         {
-            Debug.Log("Pointer Enter: " + menu);
         }
 
         private static LanguagePack _pack;
@@ -61,7 +60,6 @@ namespace CardGameVR.UI
 
         public void OpenMenu(string selectAction, string value = null)
         {
-            Debug.Log("OpenMenu: " + selectAction);
             foreach (var action in actions)
                 if (action.type == MenuAction.ActionType.OpenMenu)
                     action.targetSubMenu.Show(action.name == selectAction, value ?? action.value);
@@ -69,7 +67,6 @@ namespace CardGameVR.UI
 
         public virtual void Close()
         {
-            Debug.Log("Close Menu");
             gameObject.SetActive(false);
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -77,7 +74,6 @@ namespace CardGameVR.UI
 
         public virtual void Open()
         {
-            Debug.Log("Open Menu");
             gameObject.SetActive(true);
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
@@ -91,7 +87,6 @@ namespace CardGameVR.UI
                 return;
             }
 
-            Debug.Log("Toggling menu");
             if (gameObject.activeSelf)
                 Close();
             else Open();

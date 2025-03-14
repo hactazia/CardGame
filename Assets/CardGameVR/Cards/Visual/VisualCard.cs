@@ -117,26 +117,29 @@ namespace CardGameVR.Cards.Visual
             curveRotationOffset = curve.rotation.Evaluate(parentCard.GroupIndex());
         }
 
+        public Vector3 rotationOffset = Vector3.zero;
+
         private void CardTilt()
         {
-            savedIndex = parentCard.IsDragging() ? savedIndex : parentCard.GroupIndex();
-            var sine = Mathf.Sin(Time.time + savedIndex) * (parentCard.IsHovering() ? .2f : 1);
-            var cosine = Mathf.Cos(Time.time + savedIndex) * (parentCard.IsHovering() ? .2f : 1);
+            savedIndex = parentCard.IsDragging ? savedIndex : parentCard.GroupIndex();
+            var sine = Mathf.Sin(Time.time + savedIndex) * (parentCard.IsHovering ? .2f : 1);
+            var cosine = Mathf.Cos(Time.time + savedIndex) * (parentCard.IsHovering ? .2f : 1);
 
             var offset = transform.position - Camera.main.ScreenToWorldPoint(InputSystem.GetDevice<Mouse>().position.ReadValue());
-            var tiltX = parentCard.IsDragging() ? -offset.y * manualTiltAmount : 0;
-            var tiltY = parentCard.IsDragging() ? offset.x * manualTiltAmount : 0;
-            var tiltZ = parentCard.IsDragging()
+            var tiltX = parentCard.IsDragging ? -offset.y * manualTiltAmount : 0;
+            var tiltY = parentCard.IsDragging ? offset.x * manualTiltAmount : 0;
+            var tiltZ = parentCard.IsDragging
                 ? tiltParent.eulerAngles.z
                 : useCurve
                     ? curveRotationOffset * (curve.rotationInfluence * parentCard.GroupCount())
                     : 0;
 
-            var lerpX = Mathf.LerpAngle(tiltParent.eulerAngles.x, tiltX + sine * autoTiltAmount,
+            var parentRotation = parentCard.GetTransform().rotation.eulerAngles + rotationOffset;
+            var lerpX = Mathf.LerpAngle(tiltParent.eulerAngles.x, tiltX + sine * autoTiltAmount + parentRotation.x,
                 tiltSpeed * Time.deltaTime);
-            var lerpY = Mathf.LerpAngle(tiltParent.eulerAngles.y, tiltY + cosine * autoTiltAmount,
+            var lerpY = Mathf.LerpAngle(tiltParent.eulerAngles.y, tiltY + cosine * autoTiltAmount + parentRotation.y,
                 tiltSpeed * Time.deltaTime);
-            var lerpZ = Mathf.LerpAngle(tiltParent.eulerAngles.z, tiltZ, tiltSpeed / 2 * Time.deltaTime);
+            var lerpZ = Mathf.LerpAngle(tiltParent.eulerAngles.z, tiltZ + parentRotation.z, tiltSpeed / 2 * Time.deltaTime);
 
             tiltParent.eulerAngles = new Vector3(lerpX, lerpY, lerpZ);
         }
@@ -144,7 +147,7 @@ namespace CardGameVR.Cards.Visual
         private void SmoothFollow()
             => transform.position = Vector3.Lerp(
                 transform.position,
-                cardTransform.position + Vector3.up * (parentCard.IsDragging() ? 0 : curveYOffset),
+                cardTransform.position + Vector3.up * (parentCard.IsDragging ? 0 : curveYOffset),
                 followSpeed * Time.deltaTime
             );
 
@@ -152,7 +155,7 @@ namespace CardGameVR.Cards.Visual
         {
             var movement = transform.position - cardTransform.position;
             movementDelta = Vector3.Lerp(movementDelta, movement, 25 * Time.deltaTime);
-            var movementRotation = (parentCard.IsDragging() ? movementDelta : movement) * rotationAmount;
+            var movementRotation = (parentCard.IsDragging ? movementDelta : movement) * rotationAmount;
             rotationDelta = Vector3.Lerp(rotationDelta, movementRotation, rotationSpeed * Time.deltaTime);
             transform.eulerAngles = new Vector3(
                 transform.eulerAngles.x,
@@ -207,7 +210,7 @@ namespace CardGameVR.Cards.Visual
 
         private void PointerExit(ICard card)
         {
-            if (!parentCard.WasDragged())
+            if (!parentCard.WasDragged)
                 transform.DOScale(1, scaleTransition).SetEase(scaleEase);
         }
 

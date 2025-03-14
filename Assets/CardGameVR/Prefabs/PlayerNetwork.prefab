@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1742286537419422066}
@@ -137,7 +137,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1742286537419422066}
@@ -554,7 +554,6 @@ GameObject:
   - component: {fileID: 4926849761565243464}
   - component: {fileID: 3710134714438852683}
   - component: {fileID: 2549518367645735790}
-  - component: {fileID: 5810569494980711180}
   m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
@@ -645,22 +644,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &5810569494980711180
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5573994072531130173}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d063d685a73bf445b52fe0728e0c876, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  head: {fileID: 6809969186335502257}
-  textMesh: {fileID: 569338263126208239}
-  distance: 0.2
-  player: {fileID: 3164234272789392808}
 --- !u!1 &5857783833914147754
 GameObject:
   m_ObjectHideFlags: 0
@@ -743,6 +726,27 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   onPlayerIdChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  onIsReadyChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  onPlacementIndexChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  onPlayerCardAdded:
+    m_PersistentCalls:
+      m_Calls: []
+  onPlayerCardRemoved:
+    m_PersistentCalls:
+      m_Calls: []
+  onPlayerCardUpdated:
+    m_PersistentCalls:
+      m_Calls: []
+  onPlayerCardCleared:
+    m_PersistentCalls:
+      m_Calls: []
+  onLiveChanged:
     m_PersistentCalls:
       m_Calls: []
 --- !u!1 &7351763579587865723
