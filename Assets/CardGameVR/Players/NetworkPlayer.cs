@@ -5,6 +5,7 @@ using CardGameVR.API;
 using CardGameVR.Arenas;
 using CardGameVR.Cards;
 using CardGameVR.Controllers;
+using CardGameVR.Parties;
 using Cysharp.Threading.Tasks;
 using Unity.Collections;
 using Unity.Netcode;
@@ -70,6 +71,7 @@ namespace CardGameVR.Players
 
         private void OnPlayerCardChanged(NetworkListEvent<PlayerHandCard> changeEvent)
         {
+            Debug.Log($"OnPlayerCardChanged {changeEvent.Type}");
             switch (changeEvent.Type)
             {
                 case NetworkListEvent<PlayerHandCard>.EventType.Add:
@@ -83,6 +85,9 @@ namespace CardGameVR.Players
                     break;
                 case NetworkListEvent<PlayerHandCard>.EventType.Clear:
                     onPlayerCardCleared.Invoke();
+                    break;
+                case NetworkListEvent<PlayerHandCard>.EventType.RemoveAt:
+                    onPlayerCardRemoved.Invoke(changeEvent.Value);
                     break;
             }
         }
@@ -150,12 +155,14 @@ namespace CardGameVR.Players
 
             ArenaDescriptor.Instance.GetPlacement(PlacementIndex)
                 ?.SetPlayer(this, true);
+            PlayerEventListener.AddPlayerEvent(OwnerClientId);
         }
 
         public override void OnNetworkDespawn()
         {
             base.OnNetworkDespawn();
             onPlacementIndexChanged.RemoveListener(OnPlacementIndexChanged);
+            PlayerEventListener.RemovePlayerEvent(OwnerClientId);
         }
 
         [ServerRpc]
@@ -325,15 +332,10 @@ namespace CardGameVR.Players
         }
 
         [ServerRpc]
-        private void DrawCardServerRpc()
-        {
-            Debug.Log($"DrawCardServerRpc({OwnerClientId})");
-            AddCardToHand();
-        }
+        private void DrawCardServerRpc() => AddCardToHand();
 
         private void AddCardToHand()
         {
-            Debug.Log($"AddCardToHand({OwnerClientId})");
             var draw = CardTypeManager.DrawType();
             if (string.IsNullOrEmpty(draw))
             {
@@ -404,5 +406,55 @@ namespace CardGameVR.Players
             }
         }
 #endif
+        public void PlaceCard(int cardId, int slotIndex)
+        {
+            var hand = Hand.ToList();
+            var index = hand.FindIndex(card => card.Id == cardId);
+            if (index == -1)
+            {
+                Debug.LogError($"Card with id {cardId} not found in hand");
+                return;
+            }
+
+            var card = hand[index];
+            RemoveCard(index);
+            InsertBoardCard(cardId, card.CardType, OwnerClientId, slotIndex);
+            
+            Debug.Log($"Place card: {card.CardType} - {card.Id} at {slotIndex}");
+        }
+
+        private void RemoveCard(int index)
+        {
+            if (IsServer)
+                RemoveCardServer(index);
+            else RemoveCardServerRpc(index);
+        }
+
+        [ServerRpc]
+        private void RemoveCardServerRpc(int index)
+            => RemoveCardServer(index);
+
+        private void RemoveCardServer(int index)
+            => _handCards.RemoveAt(index);
+
+        public void InsertBoardCard(int cardId, FixedString32Bytes card, ulong ownerId, int index)
+        {
+            if (IsServer)
+                InsertBoardCardServer(cardId, card, ownerId, index);
+            else InsertBoardCardServerRpc(cardId, card, ownerId, index);
+        }
+
+        [ServerRpc]
+        private void InsertBoardCardServerRpc(int cardId, FixedString32Bytes card, ulong ownerId, int index)
+            => InsertBoardCardServer(cardId, card, ownerId, index);
+
+        private void InsertBoardCardServer(int cardId, FixedString32Bytes card, ulong ownerId, int index)
+            => NetworkParty.Instance.SetBoardCard(new GridCard
+            {
+                Id = cardId,
+                CardType = card,
+                OwnerId = OwnerClientId,
+                Index = index
+            });
     }
 }
