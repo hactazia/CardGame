@@ -1,7 +1,11 @@
-﻿using CardGameVR.Cards.Slots;
+﻿using System;
+using CardGameVR.Cards.Slots;
 using CardGameVR.Cards.Visual;
+using CardGameVR.Parties;
+using CardGameVR.Players;
 using UnityEngine;
 using UnityEngine.Events;
+using Object = UnityEngine.Object;
 
 namespace CardGameVR.Cards
 {
@@ -10,16 +14,16 @@ namespace CardGameVR.Cards
         string GetCardType();
         public int GetId();
         public void SetId(int id);
+        
+        public int[] CanMoveTo();
 
         public Transform GetTransform();
         public void SetSlot(CardSlot slot);
         public CardSlot GetSlot();
         public VisualCard SpawnVisualCard(VisualCardHandler handler);
         public bool TryGetVisualCard(out VisualCard visual);
-        public bool IsSelected { get; set; }
-        public bool IsDragging { get; set; }
-        public bool WasDragged { get; set; }
-        public bool IsHovering { get; set; }
+        public bool IsSelected => GetSlot()?.isSelected ?? false;
+        public bool IsHovering => GetSlot()?.isHovering ?? false;
         public Vector3 GetSelectionOffset();
 
         public UnityEvent<ICard> PointerEnterEvent { get; }
@@ -35,20 +39,5 @@ namespace CardGameVR.Cards
         public void OnPointerDown();
         public void OnPointerUp();
 
-        public int GroupCount()
-            => GetSlot()
-                ? GetSlot().Group.SlotCount() - 1
-                : 0;
-
-        public int GroupIndex()
-            => GetSlot()
-                ? GetSlot().Group.IndexOf(GetSlot())
-                : 0;
-
-        private void Destroy()
-        {
-            if (TryGetVisualCard(out var cardVisual))
-                Object.Destroy(cardVisual.gameObject);
-        }
     }
 }

@@ -48,4 +48,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c100a3917d094df08e8c6c72dfeaa1b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  visualCardPrefab: {fileID: 3444530196728129342, guid: c4b04fe6ffa2f5d46af5420ff473e089, type: 3}
+  selectionOffset: 10
+  isSelected: 0
+  isDragging: 0
+  wasDragged: 0
+  isHovering: 0
+  visualCardPrefab: {fileID: 6612704286983350673, guid: 162c4c574adfda545a8e5a281543742b, type: 3}

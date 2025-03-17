@@ -17,11 +17,11 @@ namespace CardGameVR.Interactions
         
         private void Update()
         {
-            if (!controller) return;
+            if (!controller || controller.menu.isActiveAndEnabled) return;
             if (!Camera) return;
 
             var ray = new Ray(Camera.transform.position, Camera.transform.forward);
-            if (Physics.Raycast(ray, out var hit, 100f))
+            if (Physics.Raycast(ray, out var hit, 200f))
             {
                 var interactable = hit.collider.GetComponent<Interactable>();
                 if (interactable)

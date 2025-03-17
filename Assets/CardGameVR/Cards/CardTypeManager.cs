@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CardGameVR.Arenas;
 using CardGameVR.Cards.Types;
+using CardGameVR.Parties;
 using CardGameVR.Players;
 using Cysharp.Threading.Tasks;
 
@@ -44,18 +45,18 @@ namespace CardGameVR.Cards
 
         public static string[] GetDrawableTypes()
         {
-            var players = PlayerNetwork.Players;
+            var players = NetworkPlayer.Players;
             var counter = new Dictionary<string, uint>();
             foreach (var type in GetTypes())
                 counter[type] = 0;
-            foreach (var card in players.SelectMany(player => player.GetHandCards()))
+            /*foreach (var card in players.SelectMany(player => player.GetHandCards()))
                 if (counter.ContainsKey(card.GetCardType()))
                     counter[card.GetCardType()]++;
                 else counter[card.GetCardType()] = 1;
             foreach (var card in NetworkParty.Instance.GetBoardCards())
                 if (counter.ContainsKey(card.GetCardType()))
                     counter[card.GetCardType()]++;
-                else counter[card.GetCardType()] = 1;
+                else counter[card.GetCardType()] = 1;*/
             return counter.Keys
                 .Where(type => counter[type] < GetMaxPresences()[type])
                 .ToArray();
@@ -80,12 +81,11 @@ namespace CardGameVR.Cards
 
         public static int GetNextId()
         {
-            var players = PlayerNetwork.Players;
             var ids = new HashSet<int>();
-            foreach (var card in players.SelectMany(player => player.GetHandCards()))
-                ids.Add(card.GetId());
-            foreach (var card in NetworkParty.Instance.GetBoardCards())
-                ids.Add(card.GetId());
+            foreach (var card in NetworkPlayer.Players.SelectMany(player => player.Hand))
+                ids.Add(card.Id);
+            foreach (var card in NetworkParty.Instance.Board)
+                ids.Add(card.Id);
             return ids.Prepend(0).Max() + 1;
         }
     }

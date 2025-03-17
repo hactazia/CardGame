@@ -185,3 +185,11 @@ MonoBehaviour:
         value: "{0}"
     - key: main_menu.custom.modal.message
         value: "{0}"
+    - key: ready
+        value: Prêt ?
+    - key: message
+        value: ""
+    - key: draw
+        value: Piocher
+    - key: pass
+        value: Passer

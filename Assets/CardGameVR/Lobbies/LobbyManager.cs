@@ -144,7 +144,7 @@ namespace CardGameVR.Lobbies
         {
             try
             {
-                return await RelayService.Instance.CreateAllocationAsync(ArenaDescriptor.MaxPlayerCount - 1);
+                return await RelayService.Instance.CreateAllocationAsync(ArenaDescriptor.MaxPlayers - 1);
             }
             catch (RelayServiceException e)
             {
@@ -179,7 +179,7 @@ namespace CardGameVR.Lobbies
                     { Manager = this, Status = CreatingLobbyStatus.RelayJoinCode });
                 var relayJoinCode = await GetRelayJoinCode(allocation);
                 var protocolVersion = NetworkManager.Singleton.NetworkConfig.ProtocolVersion;
-                var maxPlayers = ArenaDescriptor.MaxPlayerCount;
+                var maxPlayers = ArenaDescriptor.MaxPlayers;
                 var options = new CreateLobbyOptions()
                 {
                     IsPrivate = isPrivate,

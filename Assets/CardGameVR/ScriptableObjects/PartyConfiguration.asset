@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minPlayers: 2
   numberOfLives: 4
+  maxCardInHand: 8
+  initialNumberInHand: 4

@@ -7,19 +7,18 @@ using System.Linq;
 using CardGameVR.Cards;
 using CardGameVR.Cards.Slots;
 using CardGameVR.Cards.Visual;
+using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 namespace CardGameVR.Cards.Groups
 {
     [RequireComponent(typeof(GridLayoutGroup))]
     public class GridCardGroup : MonoBehaviour, ICardGroup
     {
-        [SerializeField] private ICard _selectedCard;
-        [SerializeField] private ICard _hoveredCard;
-
         public CardSlot cardSlotPrefab;
 
         [Header("Spawn Settings")] [SerializeField]
-        private Vector2Int gridDimension = new(4, 4);
+        public Vector2Int gridDimension = new(4, 4);
 
         public VisualCardHandler visualCardHandler;
 
@@ -33,16 +32,8 @@ namespace CardGameVR.Cards.Groups
                 s.CardVisual?.UpdateIndex();
         }
 
-        void CardPointerEnter(ICard card)
-            => _hoveredCard = card;
 
-        void CardPointerExit(ICard card)
-            => _hoveredCard = null;
-
-        private void BeginDrag(ICard card)
-            => _selectedCard = card;
-
-        void Start()
+        public virtual void Start()
         {
             OnRectTransformDimensionsChange();
 
@@ -53,14 +44,11 @@ namespace CardGameVR.Cards.Groups
             }
 
             slots = GetComponentsInChildren<CardSlot>().ToArray();
+            foreach (var slot in slots)
+                slot.Group = this;
 
 
             StartCoroutine(Frame());
-        }
-
-        private void EndDrag(ICard card)
-        {
-            // ..
         }
 
         private void OnRectTransformDimensionsChange()
@@ -121,6 +109,7 @@ namespace CardGameVR.Cards.Groups
             if (!Has(slot) || slot.Card == null)
                 return false;
             slot.SetCard(null);
+            OnSlotRemoved.Invoke(slot);
             return true;
         }
 
@@ -135,7 +124,7 @@ namespace CardGameVR.Cards.Groups
         public CardSlot GetSlot(int index) => slots[index];
 
         public bool Has(CardSlot slot) => Array.IndexOf(slots, slot) != -1;
-        
+
         public CardSlot[] GetSlots()
         {
             var list = new List<CardSlot>();
@@ -147,5 +136,12 @@ namespace CardGameVR.Cards.Groups
         public ICard[] GetCards()
             => (from slot in GetSlots() where slot.Card != null select slot.Card)
                 .ToArray();
+
+        public UnityEvent<CardSlot> OnSlotAdded { get; } = new();
+        public UnityEvent<CardSlot> OnSlotRemoved { get; } = new();
+        public UnityEvent<ICard, CardSlot> OnCardAdded { get; } = new();
+        public UnityEvent<ICard, CardSlot> OnCardRemoved { get; } = new();
+        public UnityEvent<CardSlot, bool> OnSelect { get; } = new();
+        public UnityEvent<CardSlot, bool> OnHover { get; } = new();
     }
 }

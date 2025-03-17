@@ -8,7 +8,7 @@ namespace CardGameVR.ScriptableObjects
     {
         public int minPlayers = 2;
         public byte numberOfLives = 4;
-        public uint maxCardInHand = 8;
-        public uint initialNumberInHand = 4;
+        public int maxCardInHand = 8;
+        public int initialNumberInHand = 4;
     }
 }

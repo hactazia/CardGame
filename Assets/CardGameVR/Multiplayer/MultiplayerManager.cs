@@ -1,4 +1,5 @@
 ﻿using CardGameVR.Arenas;
+using CardGameVR.Parties;
 using Cysharp.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
@@ -59,7 +60,7 @@ namespace CardGameVR.Multiplayer
             NetworkManager.ConnectionApprovalResponse response
         )
         {
-            response.Approved = NetworkManager.Singleton.ConnectedClientsList.Count < ArenaDescriptor.MaxPlayerCount;
+            response.Approved = NetworkManager.Singleton.ConnectedClientsList.Count < ArenaDescriptor.MaxPlayers;
         }
 
         private static void NetworkManager_Server_OnClientConnectedCallback(ulong clientId)

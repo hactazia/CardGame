@@ -289,7 +289,7 @@ GameObject:
   - component: {fileID: 1457197073052230012}
   - component: {fileID: 3444530196728129342}
   m_Layer: 0
-  m_Name: TestVisualCard
+  m_Name: VisualCard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

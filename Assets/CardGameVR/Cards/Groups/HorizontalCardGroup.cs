@@ -4,6 +4,7 @@ using System.Linq;
 using CardGameVR.Cards.Slots;
 using CardGameVR.Cards.Visual;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace CardGameVR.Cards.Groups
@@ -27,7 +28,7 @@ namespace CardGameVR.Cards.Groups
         bool _isCrossing = false;
         [SerializeField] private bool tweenCardReturn = true;
 
-        void Start()
+        public void Start()
         {
             StartCoroutine(Frame());
         }
@@ -122,7 +123,7 @@ namespace CardGameVR.Cards.Groups
             foreach (var s in slots)
                 s.CardVisual?.UpdateIndex();
         }
-        
+
         public CardSlot[] GetSlots()
         {
             var list = new List<CardSlot>();
@@ -134,5 +135,12 @@ namespace CardGameVR.Cards.Groups
         public ICard[] GetCards()
             => (from slot in GetSlots() where slot.Card != null select slot.Card)
                 .ToArray();
+
+        public UnityEvent<CardSlot> OnSlotAdded { get; } = new();
+        public UnityEvent<CardSlot> OnSlotRemoved { get; } = new();
+        public UnityEvent<ICard, CardSlot> OnCardAdded { get; } = new();
+        public UnityEvent<ICard, CardSlot> OnCardRemoved { get; } = new();
+        public UnityEvent<CardSlot, bool> OnSelect { get; } = new();
+        public UnityEvent<CardSlot, bool> OnHover { get; } = new();
     }
 }

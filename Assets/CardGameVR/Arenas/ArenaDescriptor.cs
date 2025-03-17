@@ -1,14 +1,13 @@
 using System;
 using System.Linq;
 using CardGameVR.Cards.Groups;
-using CardGameVR.Controllers;
 using CardGameVR.Multiplayer;
+using CardGameVR.Parties;
 using CardGameVR.Players;
 using CardGameVR.ScriptableObjects;
 using Cysharp.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace CardGameVR.Arenas
 {
@@ -21,24 +20,34 @@ namespace CardGameVR.Arenas
     {
         public static ArenaDescriptor Instance;
 
+        // Static properties
+
+        public static int MaxPlayers => Instance.placements.Length;
+        public static int MinPlayers => Instance.partyConfiguration.minPlayers;
+        public static int MaxInHand => Instance.partyConfiguration.maxCardInHand;
+        public static int InitialInHand => Instance.partyConfiguration.initialNumberInHand;
+        public static int NumberOfLives => Instance.partyConfiguration.numberOfLives;
+
+
+
+        // Instance properties
+
         public PartyConfiguration partyConfiguration;
-
         [SerializeField] public ArenaPlacement[] placements = Array.Empty<ArenaPlacement>();
-        public static int MaxPlayerCount => Instance.placements.Length;
-
-        [SerializeField] public GridCardGroup gameBoard;
+        [SerializeField] public BoardGroup board;
         [SerializeField] public NetworkObject playerPrefab;
 
-
-        public void Awake() => Instance = this;
+        // Unity Functions
 
         public void Start()
         {
+            if (!Instance)
+                Instance = this;
+            else Destroy(gameObject);
+
             if (playerPrefab?.gameObject && NetworkManager.Singleton)
                 NetworkManager.Singleton.AddNetworkPrefab(playerPrefab.gameObject);
-            Multiplayer.MultiplayerManager.OnClientJoined.AddListener(OnClientJoined);
-            Multiplayer.MultiplayerManager.OnClientLeft.AddListener(OnClientLeft);
-            Multiplayer.MultiplayerManager.OnConnect.AddListener(OnConnect);
+            MultiplayerManager.OnClientJoined.AddListener(server_OnClientJoined);
         }
 
         public void OnDestroy()
@@ -48,64 +57,17 @@ namespace CardGameVR.Arenas
 
             if (playerPrefab?.gameObject && NetworkManager.Singleton)
                 NetworkManager.Singleton.RemoveNetworkPrefab(playerPrefab.gameObject);
-            Multiplayer.MultiplayerManager.OnClientJoined.RemoveListener(OnClientJoined);
-            Multiplayer.MultiplayerManager.OnClientLeft.RemoveListener(OnClientLeft);
-            Multiplayer.MultiplayerManager.OnConnect.RemoveListener(OnConnect);
+            MultiplayerManager.OnClientJoined.RemoveListener(server_OnClientJoined);
         }
 
-        public ArenaPlacement GetFreePlacement()
-            => placements.FirstOrDefault(placement => !placement.Player);
-
-        private void OnClientJoined(Multiplayer.ClientJoinedArgs args)
-            => OnClientJoinedAsync(args).Forget();
-
-        private async UniTask OnClientJoinedAsync(Multiplayer.ClientJoinedArgs args)
+        private void server_OnClientJoined(ClientJoinedArgs args)
         {
-            await NetworkParty.WhenIsInstanced();
-
-            var playerNetwork = PlayerNetwork.GetPlayer(args.ClientId);
-            if (playerNetwork) return;
-
-            if (Multiplayer.MultiplayerManager.IsServer())
-            {
-                Debug.Log($"Spawn player for client {args.ClientId}");
-                var description = ArenaDescriptor.Instance;
-                var playerInstance = Instantiate(description.playerPrefab.gameObject, transform);
-                var player = playerInstance.GetComponent<NetworkObject>();
-                player.SpawnAsPlayerObject(args.ClientId, true);
-                playerNetwork = player.GetComponent<PlayerNetwork>();
-            }
+            if (!MultiplayerManager.IsServer()) return;
+            
+            Debug.Log($"Spawn player for client {args.ClientId}");
+            var instance = Instantiate(Instance.playerPrefab.gameObject, transform);
+            var obj = instance.GetComponent<NetworkObject>();
+            obj.SpawnAsPlayerObject(args.ClientId, true);
         }
-
-        private void OnConnect(ConnectArgs args)
-            => OnConnectAsync(args).Forget();
-
-        private async UniTask OnConnectAsync(ConnectArgs args)
-        {
-            var playerNetwork = await PlayerNetwork.WhenPlayerSpawned(args.ClientId);
-
-            if (playerNetwork.IsLocalPlayer)
-            {
-                var placement = GetFreePlacement();
-                if (!placement) return;
-                playerNetwork.PlacementIndex = placement.GetPlacementIndex();
-            }
-        }
-
-        private void OnClientLeft(Multiplayer.ClientLeftArgs args)
-            => OnClientLeftAsync(args).Forget();
-
-        private async UniTask OnClientLeftAsync(Multiplayer.ClientLeftArgs args)
-        {
-            await NetworkParty.WhenIsInstanced();
-
-            GetPlacement(PlayerNetwork.GetPlayer(args.ClientId).PlacementIndex)
-                ?.SetPlayer(null);
-        }
-
-        public ArenaPlacement GetPlacement(int value)
-            => value >= 0 && value < placements.Length
-                ? placements[value]
-                : null;
     }
 }

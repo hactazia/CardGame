@@ -1,7 +1,34 @@
+using System;
+using CardGameVR.Languages;
+using CardGameVR.Parties;
+using CardGameVR.Players;
+using UnityEngine;
+using UnityEngine.UI;
+
 namespace CardGameVR.Arenas
 {
-    public class DeckButton
+    public class DeckButton : MonoBehaviour
     {
-        
+        public ArenaPlacement arenaPlacement;
+        public Button drawButton;
+        public TextLanguage text;
+
+        private void Update()
+        {
+            drawButton.interactable = arenaPlacement.Player
+                                      && arenaPlacement.Player.IsMyTurn
+                                      && arenaPlacement.Player.IsLocalPlayer;
+            text.UpdateText(IsPass ? "pass" : "draw");
+        }
+
+
+        private bool IsPass => arenaPlacement.Player && arenaPlacement.Player.Hand.Length >= ArenaDescriptor.MaxInHand;
+
+        private void button_OnClick()
+        {
+            if (!arenaPlacement.Player.IsMyTurn || !arenaPlacement.Player.IsLocalPlayer) return;
+            if (IsPass) NetworkParty.Instance.NextTurn();
+            else arenaPlacement.Player.DrawCard();
+        }
     }
 }

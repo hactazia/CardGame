@@ -1,4 +1,5 @@
-﻿using CardGameVR.Cards.Slots;
+﻿using System;
+using CardGameVR.Cards.Slots;
 using CardGameVR.Cards.Visual;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -22,14 +23,13 @@ namespace CardGameVR.Cards.Types
 
         public int GetId() => _id;
         public void SetId(int id) => _id = id;
+        public int[] CanMoveTo() => Array.Empty<int>();
 
         [Header("Visuals")] [SerializeField] public VisualCard visualCardPrefab;
         public VisualCard visualCard;
 
-        [Header("Settings")] public bool reCenterOnDragged = true;
-
         public float selectionOffset = 10f;
-        
+
         [Header("States")] public bool isSelected;
         public bool isDragging;
         public bool wasDragged;
@@ -73,7 +73,7 @@ namespace CardGameVR.Cards.Types
             else
                 transform.localPosition = Vector3.zero;
         }
-        
+
         public Transform GetTransform() => transform;
 
         public void SetSlot(CardSlot slot) => _slot = slot;

@@ -53,4 +53,4 @@ MonoBehaviour:
   isDragging: 0
   wasDragged: 0
   isHovering: 0
-  visualCardPrefab: {fileID: 3444530196728129342, guid: c4b04fe6ffa2f5d46af5420ff473e089, type: 3}
+  visualCardPrefab: {fileID: 7013503798083060710, guid: a4af343a2b32d77498f7ce01e0bf71e5, type: 3}

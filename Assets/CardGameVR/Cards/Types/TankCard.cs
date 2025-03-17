@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using CardGameVR.Arenas;
 using CardGameVR.Cards.Slots;
 using CardGameVR.Cards.Visual;
 using Cysharp.Threading.Tasks;
@@ -30,10 +33,8 @@ namespace CardGameVR.Cards.Types
 
         public float selectionOffset = 10f;
 
-        [Header("States")] public bool isSelected;
-        public bool isDragging;
+        [Header("States")] public bool isDragging;
         public bool wasDragged;
-        public bool isHovering;
 
         [SerializeField] public VisualCard visualCardPrefab;
 
@@ -45,35 +46,22 @@ namespace CardGameVR.Cards.Types
         public UnityEvent<ICard, bool> PointerUpEvent { get; } = new();
         public UnityEvent<ICard> PointerDownEvent { get; } = new();
 
-        public void OnPointerEnter()
-        {
-            PointerEnterEvent.Invoke(this);
-            isHovering = true;
-        }
-
-        public void OnPointerExit()
-        {
-            PointerExitEvent.Invoke(this);
-            isHovering = false;
-        }
-
-        public void OnPointerDown()
-        {
-            PointerDownEvent.Invoke(this);
-        }
+        public void OnPointerEnter() => PointerEnterEvent.Invoke(this);
+        public void OnPointerExit() => PointerExitEvent.Invoke(this);
+        public void OnPointerDown() => PointerDownEvent.Invoke(this);
 
         public void OnPointerUp()
         {
-            if (wasDragged)
-                return;
+            if (!_slot) return;
+            SelectEvent.Invoke(this, _slot.isSelected);
+        }
 
-            isSelected = !isSelected;
-            SelectEvent.Invoke(this, isSelected);
-
-            if (isSelected)
-                transform.localPosition += transform.up * selectionOffset;
-            else
-                transform.localPosition = Vector3.zero;
+        private void Update()
+        {
+            if (!_slot) return;
+            transform.localPosition = _slot.isSelected
+                ? transform.up * selectionOffset
+                : Vector3.zero;
         }
 
 
@@ -110,34 +98,39 @@ namespace CardGameVR.Cards.Types
             return true;
         }
 
-        public bool IsSelected
+        public int[] CanMoveTo()
         {
-            get => isSelected;
-            set => isSelected = value;
-        }
+            if (!this.TryBoard(out _))
+                return Array.Empty<int>();
 
-        public bool IsDragging
-        {
-            get => isDragging;
-            set => isDragging = value;
-        }
+            //  X
+            // XCX
+            //  X
 
-        public bool WasDragged
-        {
-            get => wasDragged;
-            set => wasDragged = value;
-        }
+            Vector2Int[] list =
+            {
+                new(0, 1),
+                new(1, 0),
+                new(0, -1),
+                new(-1, 0),
+                new(0, 0)
+            };
+            var pos = this.GetCell();
+            var moves = (from move in list
+                    select pos + move
+                    into target
+                    where BoardGroup.IsInBounds(target)
+                    select BoardGroup.GetIndex(target))
+                .ToList();
 
-        public bool IsHovering
-        {
-            get => isHovering;
-            set => isHovering = value;
+            return moves.ToArray();
         }
 
         public Vector3 GetSelectionOffset() => Vector3.zero;
 
         public void OnDestroy()
         {
+            Debug.Log($"Destroying {this}");
             if (TryGetVisualCard(out var cardVisual))
                 Destroy(cardVisual.gameObject);
         }

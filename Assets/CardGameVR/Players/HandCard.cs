@@ -6,7 +6,7 @@ using Unity.Netcode;
 
 namespace CardGameVR.Players
 {
-    public struct PlayerHandCard : INetworkSerializable, IEquatable<PlayerHandCard>
+    public struct HandCard : INetworkSerializable, IEquatable<HandCard>
     {
         public int Id;
         public FixedString32Bytes CardType;
@@ -31,7 +31,7 @@ namespace CardGameVR.Players
             serializer.SerializeValue(ref IsVisibleForLocalPlayer);
         }
 
-        public bool Equals(PlayerHandCard other)
+        public bool Equals(HandCard other)
             => Id.Equals(other.Id)
                && CardType.Equals(other.CardType)
                && IsVisibleForOtherPlayers.Equals(other.IsVisibleForOtherPlayers);

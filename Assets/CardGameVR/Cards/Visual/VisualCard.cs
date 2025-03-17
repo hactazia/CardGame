@@ -121,16 +121,14 @@ namespace CardGameVR.Cards.Visual
 
         private void CardTilt()
         {
-            savedIndex = parentCard.IsDragging ? savedIndex : parentCard.GroupIndex();
+            savedIndex = parentCard.GroupIndex();
             var sine = Mathf.Sin(Time.time + savedIndex) * (parentCard.IsHovering ? .2f : 1);
             var cosine = Mathf.Cos(Time.time + savedIndex) * (parentCard.IsHovering ? .2f : 1);
 
             var offset = transform.position - Camera.main.ScreenToWorldPoint(InputSystem.GetDevice<Mouse>().position.ReadValue());
-            var tiltX = parentCard.IsDragging ? -offset.y * manualTiltAmount : 0;
-            var tiltY = parentCard.IsDragging ? offset.x * manualTiltAmount : 0;
-            var tiltZ = parentCard.IsDragging
-                ? tiltParent.eulerAngles.z
-                : useCurve
+            var tiltX = 0;
+            var tiltY = 0;
+            var tiltZ = useCurve
                     ? curveRotationOffset * (curve.rotationInfluence * parentCard.GroupCount())
                     : 0;
 
@@ -147,7 +145,7 @@ namespace CardGameVR.Cards.Visual
         private void SmoothFollow()
             => transform.position = Vector3.Lerp(
                 transform.position,
-                cardTransform.position + Vector3.up * (parentCard.IsDragging ? 0 : curveYOffset),
+                cardTransform.position + Vector3.up * curveYOffset,
                 followSpeed * Time.deltaTime
             );
 
@@ -155,7 +153,7 @@ namespace CardGameVR.Cards.Visual
         {
             var movement = transform.position - cardTransform.position;
             movementDelta = Vector3.Lerp(movementDelta, movement, 25 * Time.deltaTime);
-            var movementRotation = (parentCard.IsDragging ? movementDelta : movement) * rotationAmount;
+            var movementRotation = movement * rotationAmount;
             rotationDelta = Vector3.Lerp(rotationDelta, movementRotation, rotationSpeed * Time.deltaTime);
             transform.eulerAngles = new Vector3(
                 transform.eulerAngles.x,
@@ -210,8 +208,7 @@ namespace CardGameVR.Cards.Visual
 
         private void PointerExit(ICard card)
         {
-            if (!parentCard.WasDragged)
-                transform.DOScale(1, scaleTransition).SetEase(scaleEase);
+            transform.DOScale(1, scaleTransition).SetEase(scaleEase);
         }
 
         private void PointerUp(ICard card, bool longPress)
