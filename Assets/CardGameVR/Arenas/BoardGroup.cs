@@ -74,7 +74,7 @@ namespace CardGameVR.Arenas
         {
             Debug.Log($"Turn: {player.OwnerClientId}");
             RemoveHighlight();
-            var turn = player.IsLocalPlayer && player.IsServer;
+            var turn = player.IsLocalPlayer && player.IsMyTurn;
             foreach (var slot in GetSlots())
                 slot.interactable = turn;
 
@@ -132,7 +132,7 @@ namespace CardGameVR.Arenas
                 return;
             }
 
-            if (isSelected && selected)
+            if (isSelected && selected && selected.Card != null)
             {
                 RemoveHighlight();
 

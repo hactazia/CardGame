@@ -7,13 +7,13 @@ using UnityEngine.UI;
 namespace CardGameVR.Arenas
 {
     [RequireComponent(typeof(VerticalLayoutGroup))]
-    public class BoostRender : Interactable
+    public class BoostRender : MonoBehaviour
     {
         public ArenaPlacement placement;
         public GameObject boostPrefab;
         public Button boostButton;
 
-        public override void OnSelect()
+        public void OnSelect()
         {
             if (!boostButton.interactable) return;
 
@@ -36,6 +36,7 @@ namespace CardGameVR.Arenas
             NetworkPlayer.OnBoosts.AddListener(player_OnBoosts);
             NetworkParty.OnTurn.AddListener(party_OnTurn);
             NetworkParty.OnState.AddListener(party_OnState);
+            boostButton.onClick.AddListener(OnSelect);
             UpdateInteractable();
         }
 
@@ -44,6 +45,7 @@ namespace CardGameVR.Arenas
             NetworkPlayer.OnBoosts.RemoveListener(player_OnBoosts);
             NetworkParty.OnTurn.RemoveListener(party_OnTurn);
             NetworkParty.OnState.RemoveListener(party_OnState);
+            boostButton.onClick.RemoveListener(OnSelect);
         }
 
         private void party_OnState(bool started)

@@ -5,7 +5,16 @@ namespace CardGameVR.API
 {
     public static class Steam
     {
-        private static bool IsSteamRunning() => SteamAPI.IsSteamRunning();
+        private static bool IsSteamRunning()
+        {
+            try
+            {
+                return SteamAPI.IsSteamRunning();
+            }catch
+            {
+                return false;
+            }
+        }
 
         private static bool IsLoggedOn()
         {
