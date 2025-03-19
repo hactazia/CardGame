@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace CardGameVR.ScriptableObjects
 {
@@ -11,5 +12,9 @@ namespace CardGameVR.ScriptableObjects
         public int maxCardInHand = 8;
         public int initialNumberInHand = 4;
         public float effectMultiplier = 1f;
+        public float initialHealth = 0f;
+        public Vector2 healthRange = new(-1f, 1f);
+        public float boostRarity = 0.05f;
+        public int maxBoosts = 3;
     }
 }

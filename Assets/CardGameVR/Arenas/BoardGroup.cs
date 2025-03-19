@@ -17,6 +17,20 @@ namespace CardGameVR.Arenas
         public static int Width => ArenaDescriptor.Instance.board.gridDimension.x;
         public static int Height => ArenaDescriptor.Instance.board.gridDimension.y;
 
+        public static bool TryGetCard(int position, out ICard card)
+        {
+            var slot = ArenaDescriptor.Instance.board.GetSlot(position);
+            if (!slot)
+            {
+                card = null;
+                return false;
+            }
+
+            card = slot.Card;
+            return card != null;
+        }
+
+
         public static bool IsInBounds(Vector2Int cell)
             => cell.x >= 0 && cell.x < Width && cell.y >= 0 && cell.y < Height;
 
@@ -58,11 +72,41 @@ namespace CardGameVR.Arenas
 
         private void party_OnTurn(NetworkPlayer player)
         {
-            if (!NetworkPlayer.LocalPlayer.IsServer) return;
+            Debug.Log($"Turn: {player.OwnerClientId}");
             RemoveHighlight();
             var turn = player.IsLocalPlayer && player.IsServer;
             foreach (var slot in GetSlots())
                 slot.interactable = turn;
+
+            if (!NetworkPlayer.LocalPlayer.IsServer)
+            {
+                Debug.Log("You are not the server");
+                return;
+            }
+
+            foreach (var p in NetworkPlayer.Players)
+            {
+                Debug.Log("Calculating effects on " + p.OwnerClientId);
+
+                var lives = p.Lives;
+                var activeCards = GetCards().Where(e => e.GetOwner().OwnerClientId == p.OwnerClientId).ToArray();
+                foreach (var card in activeCards)
+                {
+                    var li = card.GetActiveEffect(p);
+                    for (var i = 0; i < Math.Min(lives.Length, li.Length); i++)
+                        lives[i] += li[i];
+                }
+
+                var passiveCards = GetCards().Where(e => e.GetOwner().OwnerClientId != p.OwnerClientId).ToArray();
+                foreach (var card in passiveCards)
+                {
+                    var li = card.GetPassiveEffect(p);
+                    for (var i = 0; i < Math.Min(lives.Length, li.Length); i++)
+                        lives[i] += li[i];
+                }
+
+                p.Lives = lives;
+            }
         }
 
         private void party_OnBoardCleared() => Clear();
@@ -92,7 +136,13 @@ namespace CardGameVR.Arenas
             {
                 RemoveHighlight();
 
-                if (selected == slot) return;
+                if (selected == slot)
+                {
+                    selected.isSelected = false;
+                    selected = null;
+                    return;
+                }
+
                 var moves = selected.Card.CanMoveTo();
                 if (!moves.Contains(slot.Index)) return;
 
@@ -160,7 +210,9 @@ namespace CardGameVR.Arenas
             Debug.Log($"Moved from {boardCard.Id} from {fromSlot} to {toSlot}");
             toSlot.Card?.Destroy();
             toSlot.SetCard(null);
-            Set(toSlot, fromSlot.Card);
+            var card = fromSlot.Card;
+            fromSlot.SetCard(null);
+            Set(toSlot, card);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace CardGameVR.Cards.Visual
         private int savedIndex;
         Vector3 movementDelta;
         private Canvas canvas;
+        [SerializeField] public GameObject boostMark;
 
         [Header("References")] public Transform visualShadow;
         private float shadowOffset = 20;
@@ -105,6 +106,8 @@ namespace CardGameVR.Cards.Visual
             SmoothFollow();
             FollowRotation();
             CardTilt();
+            
+            boostMark.SetActive(parentCard.IsBoosted());
         }
 
         private void HandPositioning()

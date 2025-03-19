@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using CardGameVR.Arenas;
 using CardGameVR.Cards;
@@ -31,6 +32,7 @@ namespace CardGameVR.Parties
         public static readonly UnityEvent<NetworkPlayer, GridCard, int> OnBoardCardMoved = new();
         public static readonly UnityEvent<NetworkPlayer, int> OnBoardCardDestroyed = new();
         public static readonly UnityEvent OnBoardCleared = new();
+        public static readonly UnityEvent<NetworkPlayer, GridCard, int, bool> OnBoardBoosted = new();
 
         // Network Functions
 
@@ -175,6 +177,7 @@ namespace CardGameVR.Parties
                 Index = newPos,
                 OwnerId = clientId
             });
+            _board.RemoveAt(oldIndex + 1);
 
             BroadcastMoveCardClientRpc(clientId, board[oldIndex].Id, oldPos, newPos);
             if (newIndex != -1)
@@ -217,6 +220,15 @@ namespace CardGameVR.Parties
         private void StartGameServer()
         {
             var players = NetworkPlayer.Players;
+            foreach (var player in players)
+            {
+                List<float> list = new();
+                for (var i = 0; i < ArenaDescriptor.NumberOfLives; i++)
+                    list.Add(ArenaDescriptor.InitialHealth);
+                player.IsAlive = true;
+                player.Lives = list.ToArray();
+            }
+
             _turn.Value = players[UnityEngine.Random.Range(0, players.Count)].OwnerClientId;
             _state.Value = true;
         }
@@ -237,16 +249,32 @@ namespace CardGameVR.Parties
         {
             var old = _turn.Value;
             var index = NetworkPlayer.Players.FindIndex(player => player.OwnerClientId == _turn.Value);
-            index = (index + 1) % NetworkPlayer.Players.Count;
-            _turn.Value = NetworkPlayer.Players[index].OwnerClientId;
+            var player = NetworkPlayer.Players[index];
+            do
+            {
+                index = (index + 1) % NetworkPlayer.Players.Count;
+                player = NetworkPlayer.Players[index];
+                if (old != player.OwnerClientId) continue;
+                _state.Value = false;
+                return;
+            } while (!player.IsAlive);
 
+            if (player.Boosts < ArenaDescriptor.MaxBoosts &&
+                UnityEngine.Random.Range(0, 100) / 100f < ArenaDescriptor.BoostRarity)
+                player.Boosts++;
+
+            _turn.Value = player.OwnerClientId;
             Debug.Log($"Turn: {_turn.Value} (was {old})");
+            client_OnTurn(old, _turn.Value);
         }
 
         // Events
 
         private void client_OnTurn(ulong oldValue, ulong newValue)
-            => OnTurn.Invoke(NetworkPlayer.GetPlayer(newValue));
+        {
+            Debug.Log("OnTurn");
+            OnTurn.Invoke(NetworkPlayer.GetPlayer(newValue));
+        }
 
         private void client_OnState(bool oldValue, bool newValue)
         {
@@ -305,6 +333,52 @@ namespace CardGameVR.Parties
 
         private void ClearBoardServer()
             => _board.Clear();
+
+        // Implementation of Boost Card
+
+        public void BoostCard(NetworkPlayer player, int getId)
+        {
+            if (IsServer) BoostCardServer(player.OwnerClientId, getId);
+            else BoostCardServerRpc(player.OwnerClientId, getId);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void BoostCardServerRpc(ulong clientId, int getId)
+            => BoostCardServer(clientId, getId);
+
+        private void BoostCardServer(ulong clientId, int getId)
+        {
+            var player = NetworkPlayer.GetPlayer(clientId);
+            if (player.Boosts <= 0) return;
+            var index = Array.FindIndex(NetworkListExtension.ToArray(_board), c => c.Id == getId);
+            if (index == -1) return;
+            var card = _board[index];
+            if (card.IsBoosted) return;
+            card.IsBoosted = true;
+            _board.Insert(index, card);
+            _board.RemoveAt(index + 1);
+            player.Boosts = Mathf.Max(0, player.Boosts - 1);
+
+            BroadcastBoostCardClientRpc(clientId, getId, player.Boosts, true);
+        }
+
+        [ClientRpc]
+        private void BroadcastBoostCardClientRpc(ulong clientId, int getId, int boosts, bool isBoosted)
+            => BroadcastBoostCardClientRpcAsync(clientId, getId, boosts, isBoosted).Forget();
+
+        private async UniTask BroadcastBoostCardClientRpcAsync(ulong clientId, int getId, int boosts, bool isBoosted)
+        {
+            var index = -1;
+            var board = NetworkListExtension.ToArray(_board);
+            while (index == -1)
+            {
+                await UniTask.Yield();
+                board = NetworkListExtension.ToArray(_board);
+                index = Array.FindIndex(board, c => c.Id == getId && c.IsBoosted == isBoosted);
+            }
+
+            OnBoardBoosted.Invoke(NetworkPlayer.GetPlayer(clientId), board[index], boosts, isBoosted);
+        }
     }
 
 #if UNITY_EDITOR

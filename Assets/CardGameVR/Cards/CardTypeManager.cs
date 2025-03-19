@@ -17,21 +17,24 @@ namespace CardGameVR.Cards
             => new[]
             {
                 TankCard.GetTypeName(),
-                JumperCard.GetTypeName()
+                JumperCard.GetTypeName(),
+                SprinterCard.GetTypeName(),
             };
 
-        public static async UniTask<Dictionary<string, float>> GetDrawChances()
+        public static Dictionary<string, float> GetDrawChances()
             => new()
             {
-                { TankCard.GetTypeName(), (await TankCard.GetGlobalConfiguration()).drawChances },
-                { JumperCard.GetTypeName(), (await JumperCard.GetGlobalConfiguration()).drawChances }
+                { TankCard.GetTypeName(), TankCard.GetGlobalConfiguration().drawChances },
+                { JumperCard.GetTypeName(), JumperCard.GetGlobalConfiguration().drawChances },
+                { SprinterCard.GetTypeName(), SprinterCard.GetGlobalConfiguration().drawChances },
             };
 
-        public static async UniTask<Dictionary<string, float>> GetMaxPresences()
+        public static Dictionary<string, float> GetMaxPresences()
             => new()
             {
-                { TankCard.GetTypeName(), (await TankCard.GetGlobalConfiguration()).drawChances },
-                { JumperCard.GetTypeName(), (await JumperCard.GetGlobalConfiguration()).maxPresence }
+                { TankCard.GetTypeName(), TankCard.GetGlobalConfiguration().drawChances },
+                { JumperCard.GetTypeName(), JumperCard.GetGlobalConfiguration().maxPresence },
+                { SprinterCard.GetTypeName(), SprinterCard.GetGlobalConfiguration().maxPresence },
             };
 
         public static async UniTask<ICard> SpawnType(string type)
@@ -40,6 +43,8 @@ namespace CardGameVR.Cards
                 return await TankCard.SpawnType();
             if (type == JumperCard.GetTypeName())
                 return await JumperCard.SpawnType();
+            if (type == SprinterCard.GetTypeName())
+                return await SprinterCard.SpawnType();
             return null;
         }
 
@@ -49,14 +54,14 @@ namespace CardGameVR.Cards
             var counter = new Dictionary<string, uint>();
             foreach (var type in GetTypes())
                 counter[type] = 0;
-            /*foreach (var card in players.SelectMany(player => player.GetHandCards()))
-                if (counter.ContainsKey(card.GetCardType()))
-                    counter[card.GetCardType()]++;
-                else counter[card.GetCardType()] = 1;
-            foreach (var card in NetworkParty.Instance.GetBoardCards())
-                if (counter.ContainsKey(card.GetCardType()))
-                    counter[card.GetCardType()]++;
-                else counter[card.GetCardType()] = 1;*/
+            foreach (var card in players.SelectMany(player => player.Hand))
+                if (counter.ContainsKey(card.CardType.ToString()))
+                    counter[card.CardType.ToString()]++;
+                else counter[card.CardType.ToString()] = 1;
+            foreach (var card in NetworkParty.Instance.Board)
+                if (counter.ContainsKey(card.CardType.ToString()))
+                    counter[card.CardType.ToString()]++;
+                else counter[card.CardType.ToString()] = 1;
             return counter.Keys
                 .Where(type => counter[type] < GetMaxPresences()[type])
                 .ToArray();

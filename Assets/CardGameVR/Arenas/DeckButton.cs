@@ -13,6 +13,16 @@ namespace CardGameVR.Arenas
         public Button drawButton;
         public TextLanguage text;
 
+        void Start()
+        {
+            drawButton.onClick.AddListener(button_Clicked);
+        }
+
+        void OnDestroy()
+        {
+            drawButton.onClick.RemoveListener(button_Clicked);
+        }
+
         private void Update()
         {
             drawButton.interactable = arenaPlacement.Player
@@ -24,7 +34,7 @@ namespace CardGameVR.Arenas
 
         private bool IsPass => arenaPlacement.Player && arenaPlacement.Player.Hand.Length >= ArenaDescriptor.MaxInHand;
 
-        private void button_OnClick()
+        private void button_Clicked()
         {
             if (!arenaPlacement.Player.IsMyTurn || !arenaPlacement.Player.IsLocalPlayer) return;
             if (IsPass) NetworkParty.Instance.NextTurn();

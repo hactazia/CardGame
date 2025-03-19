@@ -29,11 +29,13 @@ namespace CardGameVR.Players
 
         // Network Variables
 
-        private NetworkVariable<bool> _ready = new();
-        private NetworkVariable<int> _placement = new(-1);
-        private NetworkVariable<FixedString128Bytes> _name = new();
-        private NetworkList<HandCard> _hand = new();
-        private NetworkList<float> _lives = new();
+        private readonly NetworkVariable<bool> _ready = new();
+        private readonly NetworkVariable<int> _placement = new(-1);
+        private readonly NetworkVariable<FixedString128Bytes> _name = new();
+        private readonly NetworkList<HandCard> _hand = new();
+        private readonly NetworkList<float> _lives = new();
+        private readonly NetworkVariable<bool> _isAlive = new(true);
+        private readonly NetworkVariable<int> _boosts = new(0);
 
         private readonly NetworkVariable<Vector3> _headPosition = new();
         private readonly NetworkVariable<Quaternion> _headRotation = new();
@@ -44,18 +46,18 @@ namespace CardGameVR.Players
         private readonly NetworkVariable<bool> _hasRightHand = new();
         private readonly NetworkVariable<bool> _hasLeftHand = new();
 
-
         public static readonly UnityEvent<NetworkPlayer> OnPlayerJoined = new();
         public static readonly UnityEvent<NetworkPlayer> OnPlayerLeft = new();
 
         public static readonly UnityEvent<NetworkPlayer, bool> OnReady = new();
         public static readonly UnityEvent<NetworkPlayer, int> OnPlacement = new();
         public static readonly UnityEvent<NetworkPlayer, string> OnName = new();
-
+        public static readonly UnityEvent<NetworkPlayer, float[]> OnLives = new();
+        public static readonly UnityEvent<NetworkPlayer, bool> OnAlive = new();
+        public static readonly UnityEvent<NetworkPlayer, int> OnBoosts = new();
         public static readonly UnityEvent<NetworkPlayer, HandCard> OnDrawHand = new();
         public static readonly UnityEvent<NetworkPlayer> OnClearHand = new();
         public static readonly UnityEvent<NetworkPlayer, HandCard> OnRemoveHand = new();
-        public static readonly UnityEvent<NetworkPlayer, float[]> OnLives = new();
 
 
         public Transform head;
@@ -74,6 +76,7 @@ namespace CardGameVR.Players
             _name.OnValueChanged += client_OnNameChanged;
             _ready.OnValueChanged += client_OnReadyChanged;
             _placement.OnValueChanged += client_OnPlacementChanged;
+            _isAlive.OnValueChanged += client_OnAliveChanged;
             _lives.OnListChanged += client_OnLivesChanged;
             _hand.OnListChanged += client_OnHandChanged;
 
@@ -87,6 +90,7 @@ namespace CardGameVR.Players
             _name.OnValueChanged -= client_OnNameChanged;
             _ready.OnValueChanged -= client_OnReadyChanged;
             _placement.OnValueChanged -= client_OnPlacementChanged;
+            _isAlive.OnValueChanged -= client_OnAliveChanged;
             _lives.OnListChanged -= client_OnLivesChanged;
             _hand.OnListChanged -= client_OnHandChanged;
             OnPlayerLeft.Invoke(this);
@@ -98,6 +102,31 @@ namespace CardGameVR.Players
             => NetworkParty.Instance
                && NetworkParty.Instance.IsStarted
                && NetworkParty.Instance.Turn == OwnerClientId;
+
+        // Implementation of Boosts
+
+
+        public void BoostCard(int getId) 
+            => NetworkParty.Instance.BoostCard(this, getId);
+
+        public int Boosts
+        {
+            get => _boosts.Value;
+            set => SetBoosts(value);
+        }
+
+        public void SetBoosts(int boosts)
+        {
+            if (IsServer) SetBoostsServer(boosts);
+            else SetBoostsServerRpc(boosts);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void SetBoostsServerRpc(int boosts)
+            => SetBoostsServer(boosts);
+
+        private void SetBoostsServer(int boosts)
+            => _boosts.Value = boosts;
 
         // Implementation of Place Card on the board
 
@@ -177,6 +206,27 @@ namespace CardGameVR.Players
         private void SetNameServer(string name)
             => _name.Value = new FixedString128Bytes(name);
 
+        // Implementation of IsAlive
+
+        public bool IsAlive
+        {
+            get => _isAlive.Value;
+            set => SetAlive(value);
+        }
+
+        public void SetAlive(bool alive)
+        {
+            if (IsServer) SetAliveServer(alive);
+            else SetAliveServerRpc(alive);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void SetAliveServerRpc(bool alive)
+            => SetAliveServer(alive);
+
+        private void SetAliveServer(bool alive)
+            => _isAlive.Value = alive;
+
         // Implementation of Ready
 
         public bool Ready
@@ -218,18 +268,12 @@ namespace CardGameVR.Players
 
         private void SetLivesServer(float[] lives)
         {
-            if (lives.Length != _lives.Count)
-            {
-                _lives.Clear();
-                foreach (var life in lives)
-                    _lives.Add(life);
-            }
-            else
-            {
-                for (var i = 0; i < lives.Length; i++)
-                    if (!Mathf.Approximately(_lives[i], lives[i]))
-                        _lives.Insert(i, lives[i]);
-            }
+            _lives.Clear();
+            foreach (var life in lives)
+                _lives.Add(life);
+            foreach (var live in _lives)
+                if (ArenaDescriptor.HealthRange.x > live || live > ArenaDescriptor.HealthRange.y)
+                    IsAlive = false;
         }
 
         // Implementation of Hand
@@ -294,6 +338,9 @@ namespace CardGameVR.Players
 
         private void client_OnLivesChanged(NetworkListEvent<float> changeEvent)
             => OnLives.Invoke(this, Lives);
+
+        private void client_OnAliveChanged(bool oldValue, bool newValue)
+            => OnAlive.Invoke(this, newValue);
 
 
         public override void OnDestroy()

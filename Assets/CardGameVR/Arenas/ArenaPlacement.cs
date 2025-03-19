@@ -28,6 +28,7 @@ namespace CardGameVR.Arenas
         private static readonly int IsOccupiedIndex = Animator.StringToHash("IsOccupied");
         private static readonly int IsLocalPlayerIndex = Animator.StringToHash("IsLocalPlayer");
         private static readonly int IsReadyIndex = Animator.StringToHash("IsReady");
+        private static readonly int IsAliveIndex = Animator.StringToHash("IsAlive");
         private static readonly int IsGameStartedIndex = Animator.StringToHash("IsGameStarted");
         private static readonly int IsYourTurnIndex = Animator.StringToHash("IsYourTurn");
 
@@ -36,6 +37,7 @@ namespace CardGameVR.Arenas
         public Animator animator;
         public PlayerAnchor playerAnchor;
         public HandGroup hand;
+        public BoostRender boosts;
 
         // Instance Functions
 
@@ -57,6 +59,7 @@ namespace CardGameVR.Arenas
             NetworkPlayer.OnPlayerJoined.AddListener(player_OnPlayerJoined);
             NetworkPlayer.OnPlacement.AddListener(player_OnPlacement);
             NetworkPlayer.OnPlayerLeft.AddListener(player_OnPlayerLeft);
+            NetworkPlayer.OnAlive.AddListener(player_OnAlive);
             NetworkParty.OnState.AddListener(party_OnState);
             NetworkParty.OnTurn.AddListener(player_OnTurn);
             SetDefaultValues();
@@ -67,9 +70,11 @@ namespace CardGameVR.Arenas
             NetworkPlayer.OnPlayerJoined.RemoveListener(player_OnPlayerJoined);
             NetworkPlayer.OnPlacement.RemoveListener(player_OnPlacement);
             NetworkPlayer.OnPlayerLeft.RemoveListener(player_OnPlayerLeft);
+            NetworkPlayer.OnAlive.RemoveListener(player_OnAlive);
             NetworkParty.OnState.RemoveListener(party_OnState);
             NetworkParty.OnTurn.RemoveListener(player_OnTurn);
         }
+
 
 
         // Event Listeners
@@ -78,6 +83,13 @@ namespace CardGameVR.Arenas
         {
             animator.SetBool(IsGameStartedIndex, isGameStarted);
         }
+
+        private void player_OnAlive(NetworkPlayer player, bool isAlive)
+        {
+            if (player.Placement != GetIndex()) return;
+            animator.SetBool(IsAliveIndex, player.IsAlive);
+        }
+
 
         private void player_OnTurn(NetworkPlayer player)
         {
@@ -137,6 +149,7 @@ namespace CardGameVR.Arenas
             animator.SetBool(IsReadyIndex, false);
             animator.SetBool(IsGameStartedIndex, false);
             animator.SetBool(IsYourTurnIndex, false);
+            animator.SetBool(IsAliveIndex, false);
         }
 
         private void SetCatapultedValues()
@@ -147,6 +160,7 @@ namespace CardGameVR.Arenas
             animator.SetBool(IsReadyIndex, Player.Ready);
             animator.SetBool(IsGameStartedIndex, NetworkParty.Instance?.IsStarted ?? false);
             animator.SetBool(IsYourTurnIndex, Player.IsMyTurn);
+            animator.SetBool(IsAliveIndex, Player.IsAlive);
         }
 
         private void MovePlayerHere()
@@ -155,164 +169,6 @@ namespace CardGameVR.Arenas
             playerAnchor.IsDefault = true;
             ControllerManager.Controller.Teleport(playerAnchor.transform);
         }
-
-
-/*
-        private void UpdateInteraction()
-        {
-            drawButton.interactable = IsYourTurn;
-            handListener.OnSlotUpdates();
-            if (NetworkPlayer.IsLocalPlayer)
-                boardListener.OnSlotUpdates();
-        }
-
-        private void OnGameStateChanged(bool isGameStarted)
-        {
-            Debug.Log("Game state changed to: " + isGameStarted);
-            animator.SetBool(IsGameStartedIndex, isGameStarted);
-            UpdateInteraction();
-        }
-
-        private void OnTurnIndexChanged(int turnIndex)
-        {
-            animator.SetBool(IsYourTurnIndex, IsYourTurn);
-            UpdateInteraction();
-        }
-
-        private void OnPlayerCardAdded(HandCard card)
-            => OnPlayerCardAddedAsync(card).Forget();
-
-        private async UniTask OnPlayerCardAddedAsync(HandCard card)
-        {
-            Debug.Log($"Add card: {card.Id}");
-            var slot = handCardGroup.slots.Find(e => e.Card.GetId() == card.Id);
-            if (slot)
-            {
-                Debug.LogError("Card already exists in hand");
-                return;
-            }
-
-            var spawned = await card.Spawn();
-            var visual = !spawned.TryGetVisualCard(out var cardVisual)
-                ? spawned.SpawnVisualCard(handCardGroup.visualCardHandler ?? VisualCardHandler.Instance)
-                : cardVisual;
-            visual.transform.position = drawButton.transform.position;
-            visual.transform.rotation = drawButton.transform.rotation;
-            handCardGroup.Add(spawned);
-            slot = handCardGroup.slots.Find(e => e.Card.GetId() == card.Id);
-            slot.interactable = IsYourTurn;
-            handListener.OnSlotUpdate(slot);
-        }
-
-        private void OnPlayerCardRemoved(HandCard card)
-            => OnPlayerCardRemovedAsync(card).Forget();
-
-        private async UniTask OnPlayerCardRemovedAsync(HandCard card)
-        {
-            Debug.Log($"Remove card: {card.Id}");
-            var slot = handCardGroup.slots.Find(e => e.Card.GetId() == card.Id);
-            if (!slot)
-            {
-                Debug.LogError("Card does not exist in hand");
-                return;
-            }
-
-            Debug.Log($"Remove card: {card.Id} 0");
-            await UniTask.Yield();
-            Debug.Log($"Remove card: {card.Id} 1");
-            handCardGroup.Remove(slot);
-        }
-
-        private void OnPlayerCardCleared()
-        {
-            Debug.Log($"Player card cleared");
-            handCardGroup.Clear();
-        }
-
-        private void SetReady(bool ready)
-        {
-            if (!NetworkPlayer || !NetworkPlayer.IsLocalPlayer || ready == NetworkPlayer.IsReady) return;
-            NetworkPlayer.IsReady = ready;
-        }
-
-        public async UniTask SetPlayer(NetworkPlayer networkPlayer, bool silent = false)
-        {
-            await NetworkParty.WhenIsInstanced();
-
-            if (!networkPlayer)
-            {
-                if (!NetworkPlayer)
-                {
-                    Debug.LogError("Placement is already empty.");
-                    return;
-                }
-
-                NetworkPlayer.onIsReadyChanged.RemoveListener(OnIsReadyChanged);
-                NetworkPlayer.onLiveChanged.RemoveListener(OnLiveChanged);
-                NetworkPlayer.onPlayerCardAdded.RemoveListener(OnPlayerCardAdded);
-                NetworkPlayer.onPlayerCardRemoved.RemoveListener(OnPlayerCardRemoved);
-                NetworkPlayer.onPlayerCardCleared.RemoveListener(OnPlayerCardCleared);
-                NetworkParty.Instance.OnGameStateChange.RemoveListener(OnGameStateChanged);
-                NetworkParty.Instance.OnTurnIndexChanged.RemoveListener(OnTurnIndexChanged);
-                if (!silent) NetworkPlayer.PlacementIndex = -1;
-                animator.SetBool(IsLocalPlayerIndex, false);
-                animator.SetBool(IsOccupiedIndex, false);
-                animator.SetBool(IsReadyIndex, false);
-                animator.SetBool(IsGameStartedIndex, false);
-                animator.SetBool(IsYourTurnIndex, false);
-                return;
-            }
-
-            if (NetworkPlayer && NetworkPlayer.OwnerClientId == networkPlayer.OwnerClientId && silent)
-            {
-                await SetPlayer(null, true);
-            }
-            else if (NetworkPlayer)
-            {
-                Debug.LogError("Placement is already occupied.");
-                return;
-            }
-
-            Debug.Log($"Set Placement {GetPlacementIndex()} to player {networkPlayer.OwnerClientId}");
-
-            if (!silent)
-                networkPlayer.PlacementIndex = GetPlacementIndex();
-
-            networkPlayer.transform.position = transform.position;
-            networkPlayer.transform.rotation = transform.rotation;
-            animator.SetBool(IsOccupiedIndex, true);
-            animator.SetBool(IsLocalPlayerIndex, networkPlayer.IsLocalPlayer);
-
-            networkPlayer.onIsReadyChanged.AddListener(OnIsReadyChanged);
-            OnIsReadyChanged(networkPlayer.IsReady);
-
-            networkPlayer.onLiveChanged.AddListener(OnLiveChanged);
-            OnLiveChanged(networkPlayer.Lives);
-
-            networkPlayer.onPlayerCardAdded.AddListener(OnPlayerCardAdded);
-            networkPlayer.onPlayerCardRemoved.AddListener(OnPlayerCardRemoved);
-            networkPlayer.onPlayerCardCleared.AddListener(OnPlayerCardCleared);
-            OnPlayerCardCleared();
-            foreach (var card in networkPlayer.Hand)
-                await OnPlayerCardAddedAsync(card);
-
-            UpdateInteraction();
-
-            NetworkParty.Instance.OnGameStateChange.AddListener(OnGameStateChanged);
-            OnGameStateChanged(NetworkParty.Instance.IsGameStarted);
-
-            NetworkParty.Instance.OnTurnIndexChanged.AddListener(OnTurnIndexChanged);
-            OnTurnIndexChanged(NetworkParty.Instance.TurnIndex);
-
-            if (Multiplayer.MultiplayerManager.IsPlayerIsLocal(networkPlayer.OwnerClientId) && playerAnchor)
-            {
-                Debug.Log("Teleport local player to anchor");
-                playerAnchor.IsDefault = true;
-                ControllerManager.Controller.Teleport(playerAnchor.transform);
-                readyToggle.isOn = networkPlayer.IsReady;
-            }
-        }
-*/
 
 #if UNITY_EDITOR
         public void OnDrawGizmos()

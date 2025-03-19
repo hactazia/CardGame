@@ -18,19 +18,13 @@ namespace CardGameVR.Cards.Types
     {
         public static string GetTypeName() => "jumper";
 
-        private static BaseCardConfiguration _instance;
-        public static async UniTask<BaseCardConfiguration> GetGlobalConfiguration()
-        {
-            if (_instance) return _instance;
-            _instance = await Addressables.LoadAssetAsync<BaseCardConfiguration>("cards/jumper/configuration");
-            return _instance;
-        }
-        
-        public async UniTask<BaseCardConfiguration> GetConfiguration()
-            => await GetGlobalConfiguration();
-        
+        public static JumperConfiguration GetGlobalConfiguration()
+            => Resources.Load<JumperConfiguration>(GetTypeName() + "_configuration");
 
-        
+        public BaseCardConfiguration GetConfiguration()
+            => GetGlobalConfiguration();
+
+
         public int[] CanMoveTo()
         {
             if (!this.TryBoard(out _))
@@ -82,20 +76,26 @@ namespace CardGameVR.Cards.Types
 
             return moves.ToArray();
         }
-        
-        public float[] GetPassiveEffect(NetworkPlayer player)
+
+        public float[] GetPassiveEffect(NetworkPlayer player, bool recursive = true)
         {
-            var effect = new float[] { 0.01f, -0.01f, 0, -0.01f };
-            effect = effect.Select(e=> e * ArenaDescriptor.EffectMultiplier).ToArray();
-            return effect;
+            var effects = new List<float>();
+            for (var i = 0; i < player.Lives.Length; i++)
+            {
+                var e = i + NetworkPlayer.Players.FindIndex(p => NetworkParty.Instance.Turn == p.OwnerClientId);
+                effects.Add(GetGlobalConfiguration().passiveEffect[
+                    e % GetGlobalConfiguration().passiveEffect.Length
+                ] * ArenaDescriptor.EffectMultiplier);
+            }
+
+            return effects.ToArray();
         }
 
-        public float[] GetActiveEffect()
-        {
-            var owner = this.GetOwner();
-            return GetPassiveEffect(owner).Select(e => -e).ToArray();
-        }
- 
+        public float[] GetActiveEffect(bool recursive = true)
+            => GetPassiveEffect(this.GetOwner(), recursive)
+                .Select(e => -e)
+                .ToArray();
+
 
         public static async UniTask<JumperCard> SpawnType()
         {
@@ -148,6 +148,7 @@ namespace CardGameVR.Cards.Types
         public int GetId() => _id;
 
         public void SetId(int id) => _id = id;
+        public bool IsBoosted() => this.TryBoard(out var board) && board.IsBoosted;
 
         public Transform GetTransform() => transform;
 

@@ -27,8 +27,14 @@ namespace CardGameVR.Arenas
         public static int MaxInHand => Instance.partyConfiguration.maxCardInHand;
         public static int InitialInHand => Instance.partyConfiguration.initialNumberInHand;
         public static int NumberOfLives => Instance.partyConfiguration.numberOfLives;
-        public static int EffectMultiplier => Instance.partyConfiguration.effectMultiplier;
 
+        public static float EffectMultiplier => Instance.partyConfiguration.effectMultiplier;
+
+        public static float InitialHealth => Instance.partyConfiguration.initialHealth;
+        public static Vector2 HealthRange => Instance.partyConfiguration.healthRange;
+
+        public static int MaxBoosts => Instance.partyConfiguration.maxBoosts;
+        public static float BoostRarity => Instance.partyConfiguration.boostRarity;
 
 
         // Instance properties
@@ -64,7 +70,7 @@ namespace CardGameVR.Arenas
         private void server_OnClientJoined(ClientJoinedArgs args)
         {
             if (!MultiplayerManager.IsServer()) return;
-            
+
             Debug.Log($"Spawn player for client {args.ClientId}");
             var instance = Instantiate(Instance.playerPrefab.gameObject, transform);
             var obj = instance.GetComponent<NetworkObject>();

@@ -1,4 +1,3 @@
-using System.Linq;
 using CardGameVR.Cards;
 using CardGameVR.Cards.Groups;
 using CardGameVR.Cards.Slots;
@@ -7,7 +6,6 @@ using CardGameVR.Parties;
 using CardGameVR.Players;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace CardGameVR.Arenas
 {
@@ -19,18 +17,22 @@ namespace CardGameVR.Arenas
         void Start()
         {
             NetworkParty.OnGameStarted.AddListener(party_OnGameStarted);
+            NetworkParty.OnGameEnd.AddListener(party_OnGameEnd);
             NetworkPlayer.OnDrawHand.AddListener(party_OnDrawHand);
             NetworkPlayer.OnClearHand.AddListener(party_OnClearHand);
             NetworkParty.OnTurn.AddListener(player_OnTurn);
+            NetworkPlayer.OnAlive.AddListener(player_OnAlive);
             OnSelect.AddListener(group_OnSelect);
         }
 
         void OnDestroy()
         {
             NetworkParty.OnGameStarted.RemoveListener(party_OnGameStarted);
+            NetworkParty.OnGameEnd.RemoveListener(party_OnGameEnd);
             NetworkPlayer.OnDrawHand.RemoveListener(party_OnDrawHand);
             NetworkPlayer.OnClearHand.RemoveListener(party_OnClearHand);
             NetworkParty.OnTurn.RemoveListener(player_OnTurn);
+            NetworkPlayer.OnAlive.RemoveListener(player_OnAlive);
             OnSelect.RemoveListener(group_OnSelect);
         }
 
@@ -73,7 +75,8 @@ namespace CardGameVR.Arenas
         {
             if (player != arenaPlacement.Player) return;
             Clear();
-            player.DrawCard();
+            if (player.IsAlive)
+                player.DrawCard();
         }
 
         private void party_OnGameStarted()
@@ -114,5 +117,16 @@ namespace CardGameVR.Arenas
         }
 
         public ICard GetSelected() => selectedSlot?.Card;
+
+        private void player_OnAlive(NetworkPlayer player, bool isAlive)
+        {
+            if (player != arenaPlacement.Player || player.IsAlive) return;
+            Clear();
+        }
+
+        private void party_OnGameEnd()
+        {
+            Clear();
+        }
     }
 }

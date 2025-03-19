@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80a496165c1240bea4f1f4e82988d6b2, type: 3}
   m_Name: PartyConfiguration
   m_EditorClassIdentifier: 
-  minPlayers: 2
+  minPlayers: 1
   numberOfLives: 4
   maxCardInHand: 8
   initialNumberInHand: 4
+  effectMultiplier: 1

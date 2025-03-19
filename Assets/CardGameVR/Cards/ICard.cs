@@ -16,9 +16,12 @@ namespace CardGameVR.Cards
         string GetCardType();
         public int GetId();
         public void SetId(int id);
+        public bool IsBoosted();
         
         public int[] CanMoveTo();
-        public async UniTask<BaseCardConfiguration> GetConfiguration();
+        public BaseCardConfiguration GetConfiguration();
+        public float[] GetActiveEffect(bool recursive = true);
+        public float[] GetPassiveEffect(NetworkPlayer player, bool recursive = true);
 
         public Transform GetTransform();
         public void SetSlot(CardSlot slot);

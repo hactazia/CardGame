@@ -193,3 +193,5 @@ MonoBehaviour:
         value: Piocher
     - key: pass
         value: Passer
+    - key: dead
+        value: Vous êtes éliminé

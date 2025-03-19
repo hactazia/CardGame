@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using CardGameVR.Arenas;
 using CardGameVR.Cards.Slots;
 using CardGameVR.Cards.Visual;
+using CardGameVR.Players;
+using CardGameVR.ScriptableObjects;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -13,9 +16,34 @@ namespace CardGameVR.Cards.Types
     public class TankCard : MonoBehaviour, ICard
     {
         public static string GetTypeName() => "tank";
-        public const uint MaxPresence = uint.MaxValue;
-        public const float DrawChances = 1f;
 
+        public static TankConfiguration GetGlobalConfiguration()
+            => Resources.Load<TankConfiguration>(GetTypeName()+"_configuration");
+        public BaseCardConfiguration GetConfiguration()
+            => GetGlobalConfiguration();
+        public float[] GetPassiveEffect(NetworkPlayer player, bool recursive = true)
+        {
+            List<float> effects = new();
+            for (var i = 0; i < player.Lives.Length; i++)
+                effects.Add(0);
+            return effects.ToArray();
+        }
+        public float[] GetActiveEffect(bool recursive = true)
+        {
+            var player = this.GetOwner();
+            if (!this.TryBoard(out _) || !recursive)
+                return GetPassiveEffect(player);
+            var effects = GetPassiveEffect(player).ToList();
+            foreach(var move in CanMoveTo())
+                if (BoardGroup.TryGetCard(move, out var card))
+                {
+                    var cardEffects = card.GetPassiveEffect(player, false);
+                    for(var i = 0; i < cardEffects.Length; i++)
+                        effects[i] -= cardEffects[i] * GetGlobalConfiguration().takeDamagePercentage;
+                }
+            return effects.ToArray();
+        }
+        
         public static async UniTask<TankCard> SpawnType()
         {
             var go = await Addressables.LoadAssetAsync<GameObject>("cards/" + GetTypeName());
@@ -68,6 +96,7 @@ namespace CardGameVR.Cards.Types
         public int GetId() => _id;
 
         public void SetId(int id) => _id = id;
+        public bool IsBoosted() => this.TryBoard(out var board) && board.IsBoosted;
 
         public Transform GetTransform() => transform;
 

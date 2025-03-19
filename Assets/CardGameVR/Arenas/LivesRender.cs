@@ -16,16 +16,6 @@ namespace CardGameVR.Arenas
         public Slider lifePrefab;
         public List<Slider> lives = new();
 
-        private void Start()
-        {
-            NetworkParty.OnGameStarted.AddListener(party_OnGameStarted);
-        }
-
-        private void OnDestroy()
-        {
-            NetworkParty.OnGameStarted.RemoveListener(party_OnGameStarted);
-        }
-
         public void LateUpdate()
         {
             if (arenaPlacement.Player
@@ -54,12 +44,5 @@ namespace CardGameVR.Arenas
                 }
         }
 
-        private void party_OnGameStarted()
-        {
-            if (!arenaPlacement.Player || !arenaPlacement.Player.IsLocalPlayer) return;
-            List<float> list = new();
-            for (var i = 0; i < ArenaDescriptor.NumberOfLives; i++) list.Add(0);
-            arenaPlacement.Player.Lives = list.ToArray();
-        }
     }
 }

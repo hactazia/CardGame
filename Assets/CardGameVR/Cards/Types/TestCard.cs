@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using CardGameVR.Arenas;
 using CardGameVR.Cards.Slots;
 using CardGameVR.Cards.Visual;
+using CardGameVR.Players;
+using CardGameVR.ScriptableObjects;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -11,6 +16,7 @@ namespace CardGameVR.Cards.Types
 {
     public class TestCard : MonoBehaviour, ICard
     {
+        public static string GetTypeName() => "test";
         private CardSlot _slot;
         private int _id;
 
@@ -19,11 +25,33 @@ namespace CardGameVR.Cards.Types
             _id = GetInstanceID();
         }
 
-        public string GetCardType() => "test";
+        public string GetCardType() => GetTypeName();
 
         public int GetId() => _id;
         public void SetId(int id) => _id = id;
+        public bool IsBoosted() => this.TryBoard(out var board) && board.IsBoosted;
+
         public int[] CanMoveTo() => Array.Empty<int>();
+
+        public static TestConfiguration GetGlobalConfiguration()
+            => Resources.Load<TestConfiguration>(GetTypeName() + "_configuration");
+
+        public BaseCardConfiguration GetConfiguration()
+            => GetGlobalConfiguration();
+
+        public float[] GetActiveEffect(bool recursive = true)
+        {
+            List<float> effects = new();
+            var owner = this.GetOwner();
+            foreach (var t in owner.Lives)
+                effects.Add(t * GetGlobalConfiguration().removePercentage * 2);
+            return effects.ToArray();
+        }
+
+        public float[] GetPassiveEffect(NetworkPlayer player, bool recursive = true)
+            => player.Lives
+                .Select(t => t * GetGlobalConfiguration().removePercentage * ArenaDescriptor.EffectMultiplier)
+                .ToArray();
 
         [Header("Visuals")] [SerializeField] public VisualCard visualCardPrefab;
         public VisualCard visualCard;
