@@ -20,18 +20,18 @@ namespace CardGameVR.Cards
                 JumperCard.GetTypeName()
             };
 
-        public static Dictionary<string, float> GetDrawChances()
+        public static async UniTask<Dictionary<string, float>> GetDrawChances()
             => new()
             {
-                { TankCard.GetTypeName(), TankCard.DrawChances },
-                { JumperCard.GetTypeName(), JumperCard.DrawChances }
+                { TankCard.GetTypeName(), (await TankCard.GetGlobalConfiguration()).drawChances },
+                { JumperCard.GetTypeName(), (await JumperCard.GetGlobalConfiguration()).drawChances }
             };
 
-        public static Dictionary<string, uint> GetMaxPresences()
+        public static async UniTask<Dictionary<string, float>> GetMaxPresences()
             => new()
             {
-                { TankCard.GetTypeName(), TankCard.MaxPresence },
-                { JumperCard.GetTypeName(), JumperCard.MaxPresence }
+                { TankCard.GetTypeName(), (await TankCard.GetGlobalConfiguration()).drawChances },
+                { JumperCard.GetTypeName(), (await JumperCard.GetGlobalConfiguration()).maxPresence }
             };
 
         public static async UniTask<ICard> SpawnType(string type)

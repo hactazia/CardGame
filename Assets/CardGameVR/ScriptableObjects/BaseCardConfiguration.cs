@@ -1,14 +1,13 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace CardGameVR.ScriptableObjects
 {
-    [CreateAssetMenu(fileName = "PartyConfiguration", menuName = "CardGameVR/Party Configuration"), Serializable]
-    public class PartyConfiguration : ScriptableObject
+    [CreateAssetMenu(fileName = "BaseCardConfiguration", menuName = "CardGameVR/Base Card Configuration"), Serializable]
+    public class BaseCardConfiguration : ScriptableObject
     {
-        public int minPlayers = 2;
-        public byte numberOfLives = 4;
-        public int maxCardInHand = 8;
-        public int initialNumberInHand = 4;
+        public float drawChances = 1f;
+        public uint maxPresence = 4;
     }
 }

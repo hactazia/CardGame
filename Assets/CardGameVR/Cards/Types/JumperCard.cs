@@ -6,6 +6,7 @@ using CardGameVR.Cards.Slots;
 using CardGameVR.Cards.Visual;
 using CardGameVR.Parties;
 using CardGameVR.Players;
+using CardGameVR.ScriptableObjects;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -16,9 +17,20 @@ namespace CardGameVR.Cards.Types
     public class JumperCard : MonoBehaviour, ICard
     {
         public static string GetTypeName() => "jumper";
-        public const uint MaxPresence = 4;
-        public const float DrawChances = 1f;
 
+        private static BaseCardConfiguration _instance;
+        public static async UniTask<BaseCardConfiguration> GetGlobalConfiguration()
+        {
+            if (_instance) return _instance;
+            _instance = await Addressables.LoadAssetAsync<BaseCardConfiguration>("cards/jumper/configuration");
+            return _instance;
+        }
+        
+        public async UniTask<BaseCardConfiguration> GetConfiguration()
+            => await GetGlobalConfiguration();
+        
+
+        
         public int[] CanMoveTo()
         {
             if (!this.TryBoard(out _))
@@ -70,7 +82,20 @@ namespace CardGameVR.Cards.Types
 
             return moves.ToArray();
         }
+        
+        public float[] GetPassiveEffect(NetworkPlayer player)
+        {
+            var effect = new float[] { 0.01f, -0.01f, 0, -0.01f };
+            effect = effect.Select(e=> e * ArenaDescriptor.EffectMultiplier).ToArray();
+            return effect;
+        }
 
+        public float[] GetActiveEffect()
+        {
+            var owner = this.GetOwner();
+            return GetPassiveEffect(owner).Select(e => -e).ToArray();
+        }
+ 
 
         public static async UniTask<JumperCard> SpawnType()
         {

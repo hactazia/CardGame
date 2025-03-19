@@ -27,6 +27,7 @@ namespace CardGameVR.Arenas
         public static int MaxInHand => Instance.partyConfiguration.maxCardInHand;
         public static int InitialInHand => Instance.partyConfiguration.initialNumberInHand;
         public static int NumberOfLives => Instance.partyConfiguration.numberOfLives;
+        public static int EffectMultiplier => Instance.partyConfiguration.effectMultiplier;
 
 
 

@@ -10,5 +10,6 @@ namespace CardGameVR.ScriptableObjects
         public byte numberOfLives = 4;
         public int maxCardInHand = 8;
         public int initialNumberInHand = 4;
+        public float effectMultiplier = 1f;
     }
 }

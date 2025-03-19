@@ -3,6 +3,8 @@ using CardGameVR.Cards.Slots;
 using CardGameVR.Cards.Visual;
 using CardGameVR.Parties;
 using CardGameVR.Players;
+using CardGameVR.ScriptableObjects;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 using Object = UnityEngine.Object;
@@ -16,6 +18,7 @@ namespace CardGameVR.Cards
         public void SetId(int id);
         
         public int[] CanMoveTo();
+        public async UniTask<BaseCardConfiguration> GetConfiguration();
 
         public Transform GetTransform();
         public void SetSlot(CardSlot slot);
